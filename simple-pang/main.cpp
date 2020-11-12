@@ -1,13 +1,26 @@
 //#include <vector>
 
 #include <GL/glut.h>
-#include "pang_constants.h"
+#include "Pang.h"
+#include "PangIO.h"
 #include "Player.h"
 
-static Player P;
+PangIO PIO;
+Player P;
 
 static void Pang_Init() {
 	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
+}
+
+static void Pang_IdleAction() {
+	while (!IsLastFrame()) {
+		ProceedFrame();
+
+		PIO.submit();
+		P.nextframe();
+	}
+
+	glutPostRedisplay();
 }
 
 static void Pang_renderScene() {
@@ -38,6 +51,34 @@ static void Pang_renderScene() {
 	glutSwapBuffers();
 }
 
+static void Pang_KeyboardAction(unsigned char key, int x, int y) {
+	switch (key) {
+	case ' ':
+		PIO.setkeySPACE();
+		break;
+	}
+
+	glutPostRedisplay();
+}
+static void Pang_SpecialKeyboardAction(int key, int x, int y) {
+	switch (key) {
+	case GLUT_KEY_LEFT:
+		PIO.setkeyLEFT();
+		break;
+	case GLUT_KEY_UP:
+		PIO.setkeyUP();
+		break;
+	case GLUT_KEY_RIGHT:
+		PIO.setkeyRIGHT();
+		break;
+	case GLUT_KEY_DOWN:
+		PIO.setkeyDOWN();
+		break;
+	}
+
+	glutPostRedisplay();
+}
+
 int main(int argc, char* argv[]) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
@@ -47,6 +88,9 @@ int main(int argc, char* argv[]) {
 	Pang_Init();
 
 	glutDisplayFunc(Pang_renderScene);
+	glutIdleFunc(Pang_IdleAction);
+	glutKeyboardFunc(Pang_KeyboardAction);
+	glutSpecialFunc(Pang_SpecialKeyboardAction);
 
 	glutMainLoop();
 }

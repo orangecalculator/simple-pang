@@ -18,13 +18,19 @@ constexpr double Init_PlayerPosition_y = GameFrameDown;
 constexpr double PlayerSpeed = 0.05;
 constexpr double HarpoonSpeed = 0.01;
 
-constexpr int fps = 30;
+constexpr double BallSpeedX = 0.01;
+constexpr double BallGravity = 0.001;
+constexpr int BallSlice = 50;
+constexpr int BallStack = 50;
 
-#ifdef NDEBUG
-#define DEBUG(...) 
-#else
+constexpr int fps = 5;
+
+#ifdef DEBUG
+#undef DEBUG
 #include <stdio.h>
-#define DEBUG(...) printf(__VA_ARGS__);
+#define DEBUG(...) (printf(__VA_ARGS__))
+#else
+#define DEBUG(...)
 #endif
 
 #endif /* _PANG_H_ */

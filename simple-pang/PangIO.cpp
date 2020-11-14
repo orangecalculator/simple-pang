@@ -23,32 +23,31 @@ void PangIO::setkeyDOWN() {
 	keyDOWN = true;
 }
 
-extern Player P;
 void PangIO::submit() {
 	if (keySPACE) {
 		keySPACE = false;
 
-		P.launch();
+		player.launch();
 	}
 	if (keyLEFT) {
 		keyLEFT = false;
 
-		P.move(-PlayerSpeed, 0);
+		player.move(-PlayerSpeed, 0);
 	}
 	if (keyUP) {
 		keyUP = false;
 
-		P.launch();
+		player.launch();
 	}
 	if (keyRIGHT) {
 		keyRIGHT = false;
 
-		P.move(PlayerSpeed, 0);
+		player.move(PlayerSpeed, 0);
 	}
 	if (keyDOWN) {
 		keyDOWN = false;
 
-		P.launch();
+		player.launch();
 	}
 }
 

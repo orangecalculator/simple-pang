@@ -4,9 +4,12 @@
 #include "Pang.h"
 #include "PangIO.h"
 #include "Player.h"
+#include "Ball.h"
 
-PangIO PIO;
-Player P;
+static Player P;
+static PangIO PIO(P);
+
+static Ball sampleBall(0, 0, 0.05, true);
 
 static void Pang_Init() {
 	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
@@ -18,6 +21,7 @@ static void Pang_IdleAction() {
 
 		PIO.submit();
 		P.nextframe();
+		sampleBall.nextframe();
 	}
 
 	glutPostRedisplay();
@@ -45,6 +49,7 @@ static void Pang_renderScene() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	P.draw();
+	sampleBall.draw();
 
 	glDisable(GL_DEPTH_TEST);
 

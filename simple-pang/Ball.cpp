@@ -1,7 +1,6 @@
 #include "Ball.h"
 #include "Pang.h"
 #include <GL/glut.h>
-#include <math.h>
 
 /*
 	Ball Trajectory
@@ -9,13 +8,52 @@
 		+ (speedY ** 2 / (2 * gravity))
 */
 
-Ball::Ball(float InitX, float InitY, float radius, bool goRight)
+Ball::Ball(double InitX, double InitY, double radius, bool goRight)
 	: coord{ InitX, InitY }, peakcoord{ InitX, InitY }, goRight(goRight), radius(radius){
 
 }
 
 template<typename T>
 static inline T square(T x) { return x * x; }
+
+bool Ball::collision(double posX, double posY) const {
+	/*
+		test collision with a point (posX, posY)
+	*/
+
+	return (square(coord[0] - posX) + square(coord[1] - posY) < square(radius));
+}
+
+bool Ball::collision(double LX, double LY, double RX, double RY) const {
+	/*
+		test collision with a line segment
+			from (LX, LY) to (RX, RY)
+
+		reference: Steven Halim, Felix Halim, Competitive Programming 3
+	*/
+
+	const double DX = RX - LX;
+	const double DY = RY - LY;
+	
+	const double SQABSD = square(DX) + square(DY);
+	if (SQABSD < tol) {
+		return collision(LX, LY);
+	}
+
+	//dot product
+	const double u = ((coord[0] - LX) * DX + (coord[1] - LY) * DY) / SQABSD;
+
+	if (u < 0) return collision(LX, LY);
+	else if (u > 1) return collision(RX, RY);
+	else {
+		const double PX = LX + DX * u;
+		const double PY = LY + DY * u;
+
+		return collision(PX, PY);
+	}
+
+}
+
 
 static inline double getlocationY(double coordX, double peakX, double peakY) {
 	constexpr double parabolaconst = (BallGravity / (2 * BallSpeedX * BallSpeedX));

@@ -11,10 +11,13 @@ private:
 
 	double radius;
 
-	static inline double bouncespeed(double radius) { return radius; }
+	static inline double bouncespeed(double radius) { return radius / 4; }
 
 public:
-	Ball(float initcoordX, float initcoordY, float radius, bool goRight);
+	Ball(double initcoordX, double initcoordY, double radius, bool goRight);
+
+	bool collision(double posX, double posY) const;
+	bool collision(double LX, double LY, double RX, double RY) const;
 
 	void nextframe();
 

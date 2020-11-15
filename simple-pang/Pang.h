@@ -1,10 +1,12 @@
 #ifndef _PANG_H_
 #define _PANG_H_
 
+#include <array>
+
 constexpr double tol = 1e-5;
 
-constexpr int WindowInitWidth = 400;
-constexpr int WindowInitHeight = 300;
+constexpr int WindowInitWidth = 800;
+constexpr int WindowInitHeight = 600;
 
 constexpr double GameFrameLeft = -0.9;
 constexpr double GameFrameRight = 0.9;
@@ -19,11 +21,11 @@ constexpr double PlayerSpeed = 0.05;
 constexpr double HarpoonSpeed = 0.01;
 
 constexpr double BallSpeedX = 0.01;
-constexpr double BallGravity = 0.001;
+constexpr double BallGravity = 0.0015;
 constexpr int BallSlice = 50;
 constexpr int BallStack = 50;
 
-constexpr int fps = 5;
+constexpr int fps = 15;
 
 #ifdef DEBUG
 #undef DEBUG

@@ -1,7 +1,6 @@
-#include <GL/glut.h>
 #include "Player.h"
-
 #include "Pang.h"
+#include <GL/glut.h>
 
 constexpr float HarpoonINVALID = -1.0f;
 

@@ -1,15 +1,15 @@
 //#include <vector>
 
-#include <GL/glut.h>
 #include "Pang.h"
 #include "PangIO.h"
 #include "Player.h"
 #include "Ball.h"
+#include <GL/glut.h>
 
 static Player P;
 static PangIO PIO(P);
 
-static Ball sampleBall(0, 0, 0.05, true);
+static Ball sampleBall(0, 0, 0.2, true);
 
 static void Pang_Init() {
 	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
@@ -36,6 +36,7 @@ static void Pang_renderScene() {
 
 	glEnable(GL_DEPTH_TEST);
 
+	//Game Inner Frame
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_QUADS);
@@ -47,9 +48,27 @@ static void Pang_renderScene() {
 
 	glEnd();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//Game Inner Frame End
 
 	P.draw();
+
+	if (sampleBall.collision(0, -0.1)) {
+		glColor3f(1, 0, 0);
+	}
+	else if (sampleBall.collision(0.3, 0.1, -0.3, 0.1)) {
+		glColor3f(0, 1, 0);
+	}
+	else
+		glColor3f(0, 0, 1);
 	sampleBall.draw();
+	glColor3f(0, 1, 1);
+	glBegin(GL_POINTS);
+	glVertex3f(0, -0.1, 0);
+	glEnd();
+	glBegin(GL_LINES);
+	glVertex3f(0.3, 0.1, 0);
+	glVertex3f(-0.3, 0.1, 0);
+	glEnd();
 
 	glDisable(GL_DEPTH_TEST);
 

@@ -5,7 +5,7 @@
 
 constexpr double tol = 1e-5;
 
-constexpr int WindowInitWidth = 800;
+constexpr int WindowInitWidth = 600;
 constexpr int WindowInitHeight = 600;
 
 constexpr double GameFrameLeft = -0.9;
@@ -25,7 +25,7 @@ constexpr double BallGravity = 0.0015;
 constexpr int BallSlice = 50;
 constexpr int BallStack = 50;
 
-constexpr int fps = 15;
+constexpr int fps = 30;
 
 #ifdef DEBUG
 #undef DEBUG

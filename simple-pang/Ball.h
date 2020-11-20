@@ -7,7 +7,7 @@ private:
 	double coord[2];
 
 	double peakcoord[2];
-	bool goRight;
+	double velocityX;
 
 	double radius;
 
@@ -15,6 +15,14 @@ private:
 
 public:
 	Ball(double initcoordX, double initcoordY, double radius, bool goRight);
+
+	double getcoordX() const;
+	double getcoordY() const;
+	double getvelocityX() const;
+	double getvelocityY() const;
+
+	void setvelocity(double velX, double velY);
+	void mirror(double ux, double uy, double uc);
 
 	bool collision(double posX, double posY) const;
 	bool collision(double LX, double LY, double RX, double RY) const;

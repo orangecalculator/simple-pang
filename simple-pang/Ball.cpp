@@ -1,6 +1,7 @@
 #include "Ball.h"
 #include "Pang.h"
 #include <GL/glut.h>
+#include <math.h>
 
 /*
 	Ball Trajectory
@@ -9,12 +10,62 @@
 */
 
 Ball::Ball(double InitX, double InitY, double radius, bool goRight)
-	: coord{ InitX, InitY }, peakcoord{ InitX, InitY }, goRight(goRight), radius(radius){
+	: coord{ InitX, InitY }, peakcoord{ InitX, InitY },
+		velocityX(goRight ? BallSpeedX : -BallSpeedX), radius(radius){
 
 }
 
 template<typename T>
 static inline T square(T x) { return x * x; }
+
+void Ball::setvelocity(double velX, double velY) {
+	velocityX = velX;
+
+	peakcoord[0] = coord[0] + velocityX * velY / BallGravity;
+	peakcoord[1] = coord[1] + square(velY) / (2 * BallGravity);
+}
+
+double Ball::getcoordX() const {
+	return coord[0];
+}
+
+double Ball::getcoordY() const {
+	return coord[1];
+}
+
+double Ball::getvelocityX() const {
+	return velocityX;
+}
+
+double Ball::getvelocityY() const {
+	const double coordtime = (coord[0] - peakcoord[0]) / velocityX;
+	return -coordtime * BallGravity;
+}
+
+void Ball::mirror(double ux, double uy, double uc) {
+	//mirror against line ux * x + uy * y = uc
+
+	const double absusq = square(ux) + square(uy);
+	if (absusq < tol) {
+		return;
+	}
+
+	double velocityY = getvelocityY();
+
+	{
+		const double diff = 2 * (ux * coord[0] + uy * coord[1] - uc) / absusq;
+		coord[0] -= diff * ux;
+		coord[1] -= diff * uy;
+	}
+
+	{
+		const double diff = 2 * (ux * velocityX + uy * velocityY) / absusq;
+		velocityX -= diff * ux;
+		velocityY -= diff * uy;
+		setvelocity(velocityX, velocityY);
+	}
+	
+}
 
 bool Ball::collision(double posX, double posY) const {
 	/*
@@ -61,22 +112,18 @@ static inline double getlocationY(double coordX, double peakX, double peakY) {
 	return -parabolaconst * square(coordX - peakX) + peakY;
 }
 
-static inline double mirror(double location, double mirror) {
-	return 2 * mirror - location;
-}
-
 void Ball::nextframe() {
 
 	constexpr double parabolaconst = (BallGravity / (2 * BallSpeedX * BallSpeedX));
 	const double baseY = GameFrameDown + radius;
 
 	//update coord
-	coord[0] += (goRight ? BallSpeedX : -BallSpeedX);
-	coord[1] = baseY + getlocationY(coord[0], peakcoord[0], peakcoord[1] - baseY);
+	coord[0] += velocityX;
+	coord[1] = getlocationY(coord[0], peakcoord[0], peakcoord[1]);
 
 	//bounce detection
 	while (coord[1] < baseY - tol) {
-		const double sign = (goRight ? 1.0 : -1.0);
+		const double sign = (velocityX >= 0.0 ? 1.0 : -1.0);
 		const double bouncecoordX = peakcoord[0]
 			+ sign * sqrt((peakcoord[1] - baseY) / parabolaconst);
 
@@ -99,9 +146,7 @@ void Ball::nextframe() {
 		else
 			break;
 
-		coord[0] = mirror(coord[0], mirrorcoord);
-		peakcoord[0] = mirror(peakcoord[0], mirrorcoord);
-		goRight = !goRight;
+		mirror(1, 0, mirrorcoord);
 	}
 }
 

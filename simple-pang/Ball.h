@@ -1,6 +1,8 @@
 #ifndef _BALL_H_
 #define _BALL_H_
 
+#include <vector>
+
 class Ball
 {
 private:
@@ -20,6 +22,7 @@ public:
 	double getcoordY() const;
 	double getvelocityX() const;
 	double getvelocityY() const;
+	double getradius() const;
 
 	double getYatX(double coordX) const;
 	double getleftXatY(double coordY) const;
@@ -37,5 +40,7 @@ public:
 
 	void draw() const;
 };
+
+extern std::vector<Ball> balls;
 
 #endif /* _BALL_H_ */

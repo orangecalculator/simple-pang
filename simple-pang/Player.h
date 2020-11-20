@@ -17,6 +17,7 @@ public:
 	const float* getCoord() const;
 	float getHarpoon() const;
 
+	void useHarpoon();
 	void move(float dx, float dy);
 	void nextframe();
 

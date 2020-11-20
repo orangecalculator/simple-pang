@@ -1,8 +1,9 @@
-
+#define DEBUG
 #include "Pang.h"
 #include "PangIO.h"
 #include "Player.h"
 #include "Ball.h"
+#include "Block.h"
 #include <GL/glut.h>
 #include <iostream>
 
@@ -31,11 +32,6 @@ int bgImageWidth, bgImageHeight, pImageWidth, pImageHeight;
 
 static Player P;
 static PangIO PIO(P);
-
-static Ball sampleBall(0, 0, 0.2, true);
-
-#define boundaryX WindowInitWidth/2
-#define boundaryY WindowInitHeight/2
 
 
 FIBITMAP* createBitMap(char const* filename) {
@@ -151,6 +147,17 @@ void drawPlayerTexture() {
 
 static void Pang_Init() {
 	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
+
+	initTexture();
+
+	blocks.push_back(Block(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown));
+
+	balls.push_back(Ball(0, 0, 0.2, true));
+
+
+	//PlaySound(TEXT("bgm.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
+
+
 }
 
 static void Pang_IdleAction() {
@@ -159,7 +166,32 @@ static void Pang_IdleAction() {
 
 		PIO.submit();
 		P.nextframe();
-		sampleBall.nextframe();
+
+		for (Ball& B : balls) {
+			B.nextframe();
+			if (B.collision(GameFrameRight, GameFrameDown, GameFrameRight, GameFrameUp))
+				DEBUG("illegal collision detected\n");
+			if(B.collision(GameFrameLeft, GameFrameDown, GameFrameLeft, GameFrameUp))
+				DEBUG("illegal collision detected\n");
+		}
+
+		// TO DO: harpoon collision
+		for (auto it = balls.begin(); it != balls.end(); ++it) {
+			if (it->collision(P.getCoord()[0], P.getCoord()[1], P.getCoord()[0], P.getHarpoon())) {
+				const double BcoordX = it->getcoordX();
+				const double BcoordY = it->getcoordY();
+				const double newradius = it->getradius() / 2;
+
+				balls.erase(it);
+
+				balls.push_back(Ball(BcoordX - newradius, BcoordY, newradius, false));
+				balls.push_back(Ball(BcoordX + newradius, BcoordY, newradius, true));
+
+				P.useHarpoon();
+
+				break;
+			}
+		}
 	}
 
 	glutPostRedisplay();
@@ -196,16 +228,10 @@ static void Pang_renderScene() {
 	P.draw();
 	drawPlayerTexture();
 
-	if (sampleBall.collision(0, -0.1)) {
-		glColor3f(1, 0, 0);
-	}
-	else if (sampleBall.collision(0.3, 0.1, -0.3, 0.1)) {
-		glColor3f(0, 1, 0);
-	}
-	else
-		glColor3f(0, 0, 1);
+	glColor3f(0, 1, 0);
 
-	sampleBall.draw();
+	for (const Ball& B : balls)
+		B.draw();
 	glColor3f(0, 1, 1);
 	glBegin(GL_POINTS);
 	glVertex3f(0, -0.1, 0);
@@ -249,16 +275,12 @@ static void Pang_SpecialKeyboardAction(int key, int x, int y) {
 }
 
 int main(int argc, char* argv[]) {
-	PlaySound(TEXT("bgm.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
-
-
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(WindowInitWidth, WindowInitHeight);
 	glutCreateWindow("Simple Pang");
 
 	Pang_Init();
-	initTexture();
 
 	glutDisplayFunc(Pang_renderScene);
 	glutIdleFunc(Pang_IdleAction);

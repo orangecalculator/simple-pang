@@ -42,6 +42,10 @@ double Ball::getvelocityY() const {
 	return getvelYatX(coord[0]);
 }
 
+double Ball::getradius() const {
+	return radius;
+}
+
 void Ball::mirror(double ux, double uy, double uc) {
 	//mirror against line ux * x + uy * y = uc
 
@@ -221,7 +225,7 @@ public:
 	void tryupdate(double framedelta, double _ux, double _uy, double _uc,
 					bool _coercevx, double _vx,
 					bool _coercevy, double _vy) {
-		if (framedelta <= tol)
+		if (framedelta < -tol)
 			return;
 		else if (framedelta < nextframedelta) {
 			nextframedelta = framedelta;
@@ -315,6 +319,12 @@ void Ball::nextframe() {
 		if (F.getcoercevx() || F.getcoercevy())
 			setvelocity(F.getcoercevx() ? F.getvx() : velocityX,
 				F.getcoercevy() ? F.getvy() : getvelocityY());
+
+		F.apply();
+
+		coord[0] += velocityX * F.getnextframedelta();
+		coord[1] = getYatX(coord[0]);
+		F.initialize(tol);
 		F.apply();
 	}
 }
@@ -430,3 +440,5 @@ void Ball::draw() const {
 
 	glPopMatrix();
 }
+
+std::vector<Ball> balls;

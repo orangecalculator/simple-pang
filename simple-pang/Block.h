@@ -1,6 +1,8 @@
 #ifndef _BLOCK_H_
 #define _BLOCK_H_
 
+#include <vector>
+
 class Block
 {
 private:
@@ -19,7 +21,6 @@ public:
 	double getDown();
 };
 
-#include <vector>
 extern std::vector<Block> blocks;
 
 #endif /* _BLOCK_H_ */

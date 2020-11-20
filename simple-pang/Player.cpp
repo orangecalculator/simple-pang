@@ -2,7 +2,7 @@
 #include "Pang.h"
 #include <GL/glut.h>
 
-constexpr float HarpoonINVALID = -1.0f;
+constexpr double HarpoonINVALID = -1.0;
 
 Player::Player() : coord{0.0f, GameFrameDown}, harpoon(HarpoonINVALID) {
 
@@ -27,6 +27,10 @@ const float* Player::getCoord() const{
 
 float Player::getHarpoon() const {
 	return harpoon;
+}
+
+void Player::useHarpoon() {
+	harpoon = HarpoonINVALID;
 }
 
 void Player::move(float dx, float dy) {

@@ -21,6 +21,11 @@ public:
 	double getvelocityX() const;
 	double getvelocityY() const;
 
+	double getYatX(double coordX) const;
+	double getleftXatY(double coordY) const;
+	double getrightXatY(double coordY) const;
+	double getvelYatX(double coordX) const;
+
 	void setvelocity(double velX, double velY);
 	void mirror(double ux, double uy, double uc);
 
@@ -28,6 +33,7 @@ public:
 	bool collision(double LX, double LY, double RX, double RY) const;
 
 	void nextframe();
+	void futurenextframe();
 
 	void draw() const;
 };

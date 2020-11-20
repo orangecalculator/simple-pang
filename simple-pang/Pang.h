@@ -21,7 +21,7 @@ constexpr double PlayerSpeed = 0.05;
 constexpr double HarpoonSpeed = 0.01;
 
 constexpr double BallSpeedX = 0.01;
-constexpr double BallGravity = 0.0015;
+constexpr double BallGravity = 0.0009;
 constexpr int BallSlice = 50;
 constexpr int BallStack = 50;
 

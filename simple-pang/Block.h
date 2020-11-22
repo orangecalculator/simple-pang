@@ -15,10 +15,12 @@ private:
 public:
 	Block(double Left, double Right, double Up, double Down);
 
-	double getLeft();
-	double getRight();
-	double getUp();
-	double getDown();
+	double getLeft() const;
+	double getRight() const;
+	double getUp() const;
+	double getDown() const;
+
+	void draw() const;
 };
 
 extern std::vector<Block> blocks;

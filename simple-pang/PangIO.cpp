@@ -1,3 +1,4 @@
+
 #include <time.h>
 #include "Pang.h"
 #include "PangIO.h"
@@ -66,5 +67,5 @@ bool IsLastFrame() {
 
 void ProceedFrame() {
 	framecount++;
-	//DEBUG("proceeding frame #%08d\n", framecount);
+	DEBUG("proceeding frame #% 8d\n", framecount);
 }

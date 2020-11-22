@@ -3,7 +3,7 @@
 
 #include <array>
 
-constexpr double tol = 1e-5;
+constexpr double tol = 1e-8;
 
 constexpr int WindowInitWidth = 600;
 constexpr int WindowInitHeight = 600;
@@ -18,14 +18,17 @@ constexpr double Init_PlayerPosition_x = 0.0;
 constexpr double Init_PlayerPosition_y = GameFrameDown;
 
 constexpr double PlayerSpeed = 0.05;
-constexpr double HarpoonSpeed = 0.01;
+constexpr double HarpoonSpeed = 0.02;
 
-constexpr double BallSpeedX = 0.01;
-constexpr double BallGravity = 0.0009;
+constexpr double BallSpeedX = 0.005;
+constexpr double BallGravity = 0.0004;
 constexpr int BallSlice = 50;
 constexpr int BallStack = 50;
 
-constexpr int fps = 30;
+constexpr double BallMaxSpeedY = 0.03;
+constexpr double BallMaxSize = 0.2;
+
+constexpr int fps = 60;
 
 #ifdef DEBUG
 #undef DEBUG

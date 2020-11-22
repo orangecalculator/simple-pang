@@ -13,16 +13,17 @@ private:
 
 	double radius;
 
-	static inline double bouncespeed(double radius) { return radius / 4; }
-
 public:
 	Ball(double initcoordX, double initcoordY, double radius, bool goRight);
 
 	double getcoordX() const;
 	double getcoordY() const;
+	double getpeakcoordX() const;
+	double getpeakcoordY() const;
 	double getvelocityX() const;
 	double getvelocityY() const;
 	double getradius() const;
+	double getbouncespeed() const;
 
 	double getYatX(double coordX) const;
 	double getleftXatY(double coordY) const;

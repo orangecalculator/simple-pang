@@ -1,3 +1,4 @@
+
 #include "Ball.h"
 #include "Block.h"
 #include "Pang.h"
@@ -6,7 +7,7 @@
 
 /*
 	Ball Trajectory
-	Y = - (gravity / (2 * speedX ** 2)) * (X - speedX * speedY / gravity)
+	Y = - (gravity / (2 * speedX ** 2)) * (X - speedX * speedY / gravity) ** 2
 		+ (speedY ** 2 / (2 * gravity))
 */
 
@@ -34,6 +35,14 @@ double Ball::getcoordY() const {
 	return coord[1];
 }
 
+double Ball::getpeakcoordX() const {
+	return peakcoord[0];
+}
+
+double Ball::getpeakcoordY() const {
+	return peakcoord[1];
+}
+
 double Ball::getvelocityX() const {
 	return velocityX;
 }
@@ -44,6 +53,15 @@ double Ball::getvelocityY() const {
 
 double Ball::getradius() const {
 	return radius;
+}
+
+double Ball::getbouncespeed() const {
+	constexpr double BallSizeScale = BallMaxSize / 8.0;
+	
+	const double x = radius / BallSizeScale;
+	
+	// f(x) = Max * (1 - exp(- x / scale))
+	return BallMaxSpeedY * (1 - 1 / (1.0 + x + 0.5 * square(x)));
 }
 
 void Ball::mirror(double ux, double uy, double uc) {
@@ -136,16 +154,16 @@ static double findinternaldiv(double PX, double PY, double SX, double SY, double
 	*/
 
 	double Lp = 0.0;
-	double Rp = 0.0;
+	double Rp = 1.0;
 	while (Rp - Lp > tol) {
 		const double Mp = (Lp + Rp) / 2;
 		const double MX = (1.0 - Mp) * SX + Mp * EX;
 		const double MY = (1.0 - Mp) * SY + Mp * EY;
 
-		if (distsq < pointlinedistsq(PX, PY, SX, SY, MX, MY))
-			Rp = Mp;
-		else
+		if (distsq + tol < pointlinedistsq(PX, PY, SX, SY, MX, MY))
 			Lp = Mp;
+		else
+			Rp = Mp;
 	}
 
 	return Rp;
@@ -193,26 +211,27 @@ double Ball::getvelYatX(double coordX) const {
 
 class FrameCalculator {
 public:
+	const Ball& B;
 	double leftframedelta;
 	double nextframedelta;
 	double ux, uy, uc;
-	bool coercevx, coercevy;
 	double vx, vy;
+	bool change;
 
-	FrameCalculator(double totalframedelta)
-		: leftframedelta(totalframedelta) {
+	FrameCalculator(const Ball& B, double totalframedelta)
+		: B(B), leftframedelta(totalframedelta),
+		change(false), ux(0.0), uy(0.0), uc(0.0), vx(0.0), vy(0.0) {
 		initialize(leftframedelta);
 	}
 
 	void initialize(double leftframedelta) {
 		nextframedelta = leftframedelta;
-		ux = 0.0;
-		uy = 0.0;
-		uc = 0.0;
-		coercevx = false;
-		coercevy = false;
-		vx = 0.0;
-		vy = 0.0;
+		change = false;
+		//ux = 0.0;
+		//uy = 0.0;
+		//uc = 0.0;
+		//vx = B.getvelocityX();
+		//vy = B.getvelYatX(B.getcoordX() + B.getvelocityX() * nextframedelta);
 	}
 
 	void apply() {
@@ -223,213 +242,249 @@ public:
 	bool frameleft() const { return (leftframedelta > tol); }
 
 	void tryupdate(double framedelta, double _ux, double _uy, double _uc,
-					bool _coercevx, double _vx,
-					bool _coercevy, double _vy) {
+					double _vx, double _vy) {
 		if (framedelta < -tol)
-			return;
+			;
 		else if (framedelta < nextframedelta) {
 			nextframedelta = framedelta;
+			change = true;
 			ux = _ux;
 			uy = _uy;
 			uc = _uc;
-			coercevx = _coercevx;
-			coercevy = _coercevy;
 			vx = _vx;
 			vy = _vy;
 		}
 	}
 
+	void considerVertical(double lineX, double ulim, double dlim) {
+		if (B.getcoordX() < lineX) {
+			const double candX = lineX - B.getradius();
+
+			if (!(B.getcoordX() > candX
+				|| B.getcoordX() + B.getvelocityX() * nextframedelta > candX))
+				return;
+			else {
+				const double candY = B.getYatX(candX);
+				if (!(dlim + tol < candY && candY < ulim - tol))
+					return;
+			}
+
+			DEBUG("Vertical Line Left Hit Detected at %11.4g\n", lineX);
+
+			const double framecount = (candX - B.getcoordX()) / B.getvelocityX();
+
+			double nextvelocityX = B.getvelocityX();
+			if (nextvelocityX > 0.0)
+				nextvelocityX = -nextvelocityX;
+
+			tryupdate(framecount, 1.0, 0.0, candX,
+				nextvelocityX, B.getvelYatX(candX));
+		}
+		else {
+			const double candX = lineX + B.getradius();
+
+			if (!(B.getcoordX() < candX
+				|| B.getcoordX() + B.getvelocityX() * nextframedelta < candX))
+				return;
+			else {
+				const double candY = B.getYatX(candX);
+				if (!(dlim + tol < candY && candY < ulim - tol))
+					return;
+			}
+
+			DEBUG("Vertical Line Right Hit Detected at %11.4g\n", lineX);
+
+			const double framecount = (candX - B.getcoordX()) / B.getvelocityX();
+
+			double nextvelocityX = B.getvelocityX();
+			if (nextvelocityX < 0.0)
+				nextvelocityX = -nextvelocityX;
+
+			tryupdate(framecount, 1.0, 0.0, candX,
+				nextvelocityX, B.getvelYatX(candX));
+		}
+	}
+
+	void considerHorizontal(double lineY, double llim, double rlim) {
+		if (B.getcoordY() < lineY) {
+			const double candY = lineY - B.getradius();
+
+			if (B.getpeakcoordY() <= candY)
+				return;
+			else if (B.getcoordY() > candY)
+				;
+			else if (B.getcoordX() < B.getpeakcoordX() &&
+				B.getleftXatY(candY)
+				< B.getcoordX() + B.getvelocityX() * nextframedelta)
+				;
+			else if (B.getcoordX() >= B.getpeakcoordX() &&
+				B.getrightXatY(candY)
+				> B.getcoordX() + B.getvelocityX() * nextframedelta)
+				;
+			else
+				return;
+
+			double framedelta;
+			double candX;
+			if (B.getcoordX() < B.getpeakcoordX()) {
+				framedelta = (B.getleftXatY(candY) - B.getcoordX()) / B.getvelocityX();
+				candX = B.getleftXatY(candY);
+			}
+			else {
+				framedelta = (B.getrightXatY(candY) - B.getcoordX()) / B.getvelocityX();
+				candX = B.getrightXatY(candY);
+			}
+
+			if (!(llim + tol < candX && candX < rlim - tol))
+				return;
+
+			DEBUG("Horizontal Line Bottom Hit Detected at %11.4g\n", lineY);
+
+			double nextvelocityY = B.getvelYatX(candX);
+			if (nextvelocityY > 0.0)
+				nextvelocityY = -nextvelocityY;
+
+			tryupdate(framedelta, 0.0, 1.0, candY,
+				B.getvelocityX(), nextvelocityY);
+		}
+		else {
+			const double candY = lineY + B.getradius();
+			double candX;
+			double framedelta;
+
+			if (B.getcoordY() < candY)
+				;
+			else if (B.getvelocityX() < 0.0 &&
+				B.getleftXatY(candY)
+			> B.getcoordX() + B.getvelocityX() * nextframedelta)
+				;
+			else if (B.getvelocityX() >= 0.0 &&
+				B.getrightXatY(candY)
+				< B.getcoordX() + B.getvelocityX() * nextframedelta)
+				;
+			else
+				return;
+
+			if (B.getvelocityX() < 0.0) {
+				framedelta = (B.getleftXatY(candY) - B.getcoordX()) / B.getvelocityX();
+				candX = B.getleftXatY(candY);
+			}
+			else {
+				framedelta = (B.getrightXatY(candY) - B.getcoordX()) / B.getvelocityX();
+				candX = B.getrightXatY(candY);
+			}
+
+			if (!(llim + tol < candX && candX < rlim - tol))
+				return;
+
+			DEBUG("Horizontal Line Up Hit Detected at %11.4g\n", lineY);
+
+			tryupdate(framedelta, 0.0, 1.0, candY,
+				B.getvelocityX(), B.getbouncespeed());
+		}
+	}
+
+	void considerPoint(double PX, double PY) {
+		
+		const double nextX = B.getcoordX() + nextframedelta * B.getvelocityX();
+		const double nextY = B.getYatX(nextX);
+
+		if (B.collision(PX, PY))
+			;
+		if (pointlinedistsq(PX, PY, B.getcoordX(), B.getcoordY(), nextX, nextY)
+			< square(B.getradius()))
+			;
+		else
+			return;
+
+		DEBUG("Edge Hit Detected at %11.4g %11.4g\n", PX, PY);
+
+		const double framedelta = nextframedelta
+			* findinternaldiv(PX, PY,
+				B.getcoordX(), B.getcoordY(), nextX, nextY,
+				square(B.getradius()));
+
+		const double candX = B.getcoordX() + framedelta * B.getvelocityX();
+		const double candY = B.getYatX(candX);
+
+		double ux = candX - PX;
+		double uy = candY - PY;
+		const double udot = square(ux) + square(uy);
+		if (udot > tol) {
+			const double udotsqrt = sqrt(udot);
+			ux /= udotsqrt;
+			uy /= udotsqrt;
+		}
+
+		VEC2D V = VEC2D{ B.getvelocityX(), B.getvelYatX(candX) };
+		
+		if (V.X * ux + V.Y * uy < 0.0) {
+			V = mirrorVEC2D(V.X, V.Y, ux, uy);
+		}
+
+		const double uc = ux * (PX + ux * B.getradius())
+			+ uy * (PY + uy * B.getradius());
+
+		tryupdate(framedelta, ux, uy, uc,
+				V.X, V.Y);
+	}
+
 	double getnextframedelta() const { return nextframedelta; }
+	bool getchange() const { return change; }
 	double getux() const { return ux; }
 	double getuy() const { return uy; }
 	double getuc() const { return uc; }
-	double getcoercevx() const { return coercevx; }
-	double getcoercevy() const { return coercevy; }
 	double getvx() const { return vx; }
 	double getvy() const { return vy; }
 };
 
 void Ball::nextframe() {
 	double framedelta = 1.0;
-	FrameCalculator F(framedelta);
+	FrameCalculator F(*this, framedelta);
 
 	while (F.frameleft()) {
 
-		double candX, candY;
-		double candframedelta;
+		for (const Block& B : blocks) {
+			F.considerHorizontal(B.getDown(), B.getLeft(), B.getRight());
+			F.considerHorizontal(B.getUp(), B.getLeft(), B.getRight());
+			F.considerVertical(B.getLeft(), B.getUp(), B.getDown());
+			F.considerVertical(B.getRight(), B.getUp(), B.getDown());
 
-		candY = GameFrameDown + radius;
-		candX = getleftXatY(candY);
-		candframedelta = (candX - coord[0]) / velocityX;
-		F.tryupdate(candframedelta, 0.0, 1.0, candY,
-			false, 0.0, true, bouncespeed(radius));
-
-		candY = GameFrameDown + radius;
-		candX = getrightXatY(candY);
-		candframedelta = (candX - coord[0]) / velocityX;
-		F.tryupdate(candframedelta, 0.0, 1.0, candY,
-			false, 0.0, true, bouncespeed(radius));
-
-		candY = GameFrameUp - radius;
-		candX = getleftXatY(candY);
-		candframedelta = (candX - coord[0]) / velocityX;
-		{
-			double candvelY = getvelYatX(candX);
-			if (candvelY > 0.0)
-				candvelY = -candvelY;
-			F.tryupdate(candframedelta, 0.0, 1.0, candY,
-				false, 0.0, true, candvelY);
+			F.considerPoint(B.getLeft(), B.getUp());
+			F.considerPoint(B.getLeft(), B.getDown());
+			F.considerPoint(B.getRight(), B.getDown());
+			F.considerPoint(B.getRight(), B.getUp());
 		}
 
-		candY = GameFrameUp - radius;
-		candX = getrightXatY(candY);
-		candframedelta = (candX - coord[0]) / velocityX;
-		{
-			double candvelY = getvelYatX(candX);
-			if (candvelY > 0.0)
-				candvelY = -candvelY;
-			F.tryupdate(candframedelta, 0.0, 1.0, candY,
-				false, 0.0, true, candvelY);
-		}
-
-		candX = GameFrameRight - radius;
-		candframedelta = (candX - coord[0]) / velocityX;
-		{
-			double candvelX = velocityX;
-			if (candvelX > 0.0)
-				candvelX = -candvelX;
-			F.tryupdate(candframedelta, 1.0, 0.0, candX,
-				true, candvelX, false, 0.0);
-		}
-
-		candX = GameFrameLeft + radius;
-		candframedelta = (candX - coord[0]) / velocityX;
-		{
-			double candvelX = velocityX;
-			if (candvelX < 0.0)
-				candvelX = -candvelX;
-			F.tryupdate(candframedelta, 1.0, 0.0, candX,
-				true, candvelX, false, 0.0);
-		}
+		if (F.getnextframedelta() < -tol)
+			DEBUG("negative framedelta detected\n");
 
 		coord[0] += velocityX * F.getnextframedelta();
 		coord[1] = getYatX(coord[0]);
 
-		//mirror(F.getux(), F.getuy(), F.getuc());
-		if (F.getcoercevx() || F.getcoercevy())
-			setvelocity(F.getcoercevx() ? F.getvx() : velocityX,
-				F.getcoercevy() ? F.getvy() : getvelocityY());
+		if(F.getchange()){
+			mirror(F.getux(), F.getuy(), F.getuc());
+			setvelocity(F.getvx(), F.getvy());
 
-		F.apply();
+			F.apply();
 
-		coord[0] += velocityX * F.getnextframedelta();
-		coord[1] = getYatX(coord[0]);
-		F.initialize(tol);
+			F.initialize(tol);
+
+			coord[0] += velocityX * F.getnextframedelta();
+			coord[1] = getYatX(coord[0]);
+
+			DEBUG("\n");
+
+		}
+
 		F.apply();
 	}
+
+	//DEBUG("Ball Trajectory %11.4g %11.4g from peak %11.4g %11.4g\n", coord[0], coord[1], peakcoord[0], peakcoord[1]);
 }
 
 void Ball::futurenextframe() {
-	double framedelta = 1.0;
-	FrameCalculator F(framedelta);
 
-	while (F.frameleft()) {
-
-		double candX, candY;
-		double candframedelta;
-
-		candY = GameFrameDown + radius;
-		candX = getleftXatY(candY);
-		candframedelta = (candX - coord[0]) / velocityX;
-		F.tryupdate(candframedelta, 0.0, 1.0, candY,
-			false, 0.0, true, bouncespeed(radius));
-
-		candY = GameFrameDown + radius;
-		candX = getrightXatY(candY);
-		candframedelta = (candX - coord[0]) / velocityX;
-		F.tryupdate(candframedelta, 0.0, 1.0, candY,
-			false, 0.0, true, bouncespeed(radius));
-
-		candY = GameFrameUp - radius;
-		candX = getleftXatY(candY);
-		candframedelta = (candX - coord[0]) / velocityX;
-		{
-			double candvelY = getvelYatX(candX);
-			if (candvelY > 0.0)
-				candvelY = -candvelY;
-			F.tryupdate(candframedelta, 0.0, 1.0, candY,
-				false, 0.0, true, candvelY);
-		}
-
-		candY = GameFrameUp - radius;
-		candX = getrightXatY(candY);
-		candframedelta = (candX - coord[0]) / velocityX;
-		{
-			double candvelY = getvelYatX(candX);
-			if (candvelY > 0.0)
-				candvelY = -candvelY;
-			F.tryupdate(candframedelta, 0.0, 1.0, candY,
-				false, 0.0, true, candvelY);
-		}
-
-		candX = GameFrameRight - radius;
-		candframedelta = (candX - coord[0]) / velocityX;
-		{
-			double candvelX = velocityX;
-			if (candvelX > 0.0)
-				candvelX = -candvelX;
-			F.tryupdate(candframedelta, 1.0, 0.0, candX,
-				true, candvelX, false, 0.0);
-		}
-
-		candX = GameFrameLeft + radius;
-		candframedelta = (candX - coord[0]) / velocityX;
-		{
-			double candvelX = velocityX;
-			if (candvelX < 0.0)
-				candvelX = -candvelX;
-			F.tryupdate(candframedelta, 1.0, 0.0, candX,
-				true, candvelX, false, 0.0);
-		}
-
-		for (const double edgeX : {GameFrameLeft, GameFrameRight})
-			for (const double edgeY : {GameFrameUp, GameFrameDown}) {
-			const double nextX = coord[0] + F.getnextframedelta() * velocityX;
-			const double nextY = getYatX(nextX);
-			if (pointlinedistsq(edgeX, edgeY,
-				coord[0], coord[1], nextX, nextY) < square(radius)) {
-				candframedelta = F.getnextframedelta() * findinternaldiv(edgeX, edgeY,
-					coord[0], coord[1], nextX, nextY, square(radius));
-				
-				candX = coord[0] + candframedelta * velocityX;
-				candY = getYatX(candX);
-
-				VEC2D V = mirrorVEC2D(velocityX, getvelYatX(candX),
-					-(candY - edgeY), (candX - edgeX));
-
-				//check direction
-				const double signX = (candX > edgeX ? 1.0 : -1.0);
-				const double signY = (candY > edgeY ? 1.0 : -1.0);
-
-				if (V.X * signX < 0 && V.Y * signY < 0) {
-					V.X = -V.X;
-					V.Y = -V.Y;
-				}
-
-				F.tryupdate(candframedelta, 0.0, 0.0, 0.0,
-					true, V.X, true, V.Y);
-			}
-		}
-
-		coord[0] += velocityX * F.getnextframedelta();
-		coord[1] = getYatX(coord[0]);
-
-		//mirror(F.getux(), F.getuy(), F.getuc());
-		if (F.getcoercevx() || F.getcoercevy())
-			setvelocity(F.getcoercevx() ? F.getvx() : velocityX,
-				F.getcoercevy() ? F.getvy() : getvelocityY());
-		F.apply();
-	}
 }
 
 void Ball::draw() const {

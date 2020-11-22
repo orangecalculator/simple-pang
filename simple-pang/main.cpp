@@ -1,4 +1,4 @@
-#define DEBUG
+
 #include "Pang.h"
 #include "PangIO.h"
 #include "Player.h"
@@ -151,8 +151,10 @@ static void Pang_Init() {
 	initTexture();
 
 	blocks.push_back(Block(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown));
+	blocks.push_back(Block(0.4, 0.5, 0.1, -0.1));
 
-	balls.push_back(Ball(0, 0, 0.2, true));
+	balls.push_back(Ball(-BallMaxSize / 2, 0, BallMaxSize / 2, false));
+	balls.push_back(Ball(+BallMaxSize / 2, 0, BallMaxSize / 2, true));
 
 
 	//PlaySound(TEXT("bgm.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
@@ -169,13 +171,13 @@ static void Pang_IdleAction() {
 
 		for (Ball& B : balls) {
 			B.nextframe();
-			if (B.collision(GameFrameRight, GameFrameDown, GameFrameRight, GameFrameUp))
-				DEBUG("illegal collision detected\n");
-			if(B.collision(GameFrameLeft, GameFrameDown, GameFrameLeft, GameFrameUp))
-				DEBUG("illegal collision detected\n");
+			//if (B.collision(GameFrameRight, GameFrameDown, GameFrameRight, GameFrameUp))
+			//	DEBUG("illegal collision detected\n");
+			//if(B.collision(GameFrameLeft, GameFrameDown, GameFrameLeft, GameFrameUp))
+			//	DEBUG("illegal collision detected\n");
 		}
 
-		// TO DO: harpoon collision
+		////harpoon collision
 		for (auto it = balls.begin(); it != balls.end(); ++it) {
 			if (it->collision(P.getCoord()[0], P.getCoord()[1], P.getCoord()[0], P.getHarpoon())) {
 				const double BcoordX = it->getcoordX();
@@ -214,14 +216,10 @@ static void Pang_renderScene() {
 	//Game Inner Frame
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glBegin(GL_QUADS);
 
-	glVertex2f(GameFrameLeft, GameFrameUp);
-	glVertex2f(GameFrameLeft, GameFrameDown);
-	glVertex2f(GameFrameRight, GameFrameDown);
-	glVertex2f(GameFrameRight, GameFrameUp);
+	for (const Block& B : blocks)
+		B.draw();
 
-	glEnd();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//Game Inner Frame End
 
@@ -274,8 +272,8 @@ static void Pang_SpecialKeyboardAction(int key, int x, int y) {
 	glutPostRedisplay();
 }
 
-int main(int argc, char* argv[]) {
-	glutInit(&argc, argv);
+static int Pang_main(int * Pargc, char* argv[]) {
+	glutInit(Pargc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(WindowInitWidth, WindowInitHeight);
 	glutCreateWindow("Simple Pang");
@@ -288,4 +286,10 @@ int main(int argc, char* argv[]) {
 	glutSpecialFunc(Pang_SpecialKeyboardAction);
 
 	glutMainLoop();
+
+	return 0;
+}
+
+int main(int argc, char* argv[]) {
+	return Pang_main(&argc, argv);
 }

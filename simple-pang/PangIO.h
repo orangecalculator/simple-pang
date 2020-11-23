@@ -27,5 +27,6 @@ public:
 
 bool IsLastFrame();
 void ProceedFrame();
+long getFrameCount();
 
 #endif /* _FRAMECOUNT_H_ */

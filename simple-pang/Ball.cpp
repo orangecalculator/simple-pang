@@ -5,6 +5,10 @@
 #include <GL/glut.h>
 #include <math.h>
 
+static inline bool InRange(double value, double lowerlimit, double upperlimit) {
+	return (lowerlimit + tol < value&& value < upperlimit - tol);
+}
+
 typedef struct VEC2D {
 	double X;
 	double Y;
@@ -153,12 +157,12 @@ void Ball::mirror(double ux, double uy, double uc) {
 		coord[1] -= diff * uy;
 	}
 
-	{
-		const double diff = 2 * (ux * velocityX + uy * velocityY) / absusq;
-		velocityX -= diff * ux;
-		velocityY -= diff * uy;
-		setvelocity(velocityX, velocityY);
-	}
+	//{
+	//	const double diff = 2 * (ux * velocityX + uy * velocityY) / absusq;
+	//	velocityX -= diff * ux;
+	//	velocityY -= diff * uy;
+	//	setvelocity(velocityX, velocityY);
+	//}
 	
 }
 
@@ -231,9 +235,12 @@ public:
 
 	void tryupdate(double framedelta, double _ux, double _uy, double _uc,
 					double _vx, double _vy) {
-		if (framedelta < -tol)
+		if(framedelta < -tol)
+			DEBUG("negative framedelta detected\n");
+		/*if (framedelta < -tol) // not needed
 			;
-		else if (framedelta < nextframedelta) {
+		else*/
+		if (framedelta < nextframedelta) {
 			nextframedelta = framedelta;
 			change = true;
 			ux = _ux;
@@ -244,51 +251,64 @@ public:
 		}
 	}
 
-	void considerVertical(double lineX, double ulim, double dlim, double (*bouncespeed)(double originalspeed, const Ball&)) {
+	void considerVertical(double lineX, double dlim, double ulim, double (*bouncespeed)(double originalspeed, const Ball&)) {
 		if (B.getcoordX() < lineX) {
-			const double candX = lineX - B.getradius();
+			double candX = lineX - B.getradius();
+			double framedelta;
 
-			if (!(B.getcoordX() > candX
-				|| B.getcoordX() + B.getvelocityX() * nextframedelta > candX))
-				return;
-			else {
-				const double candY = B.getYatX(candX);
-				if (!(dlim + tol < candY && candY < ulim - tol))
-					return;
+			if (B.getcoordX() > candX) {
+				if (InRange(B.getcoordY(), dlim, ulim) && B.getvelocityX() > 0.0) {
+					candX = B.getcoordX();
+					framedelta = 0.0;
+				}
+				else return;
 			}
+			else if (B.getcoordX() + B.getvelocityX() * nextframedelta > candX) {
+				framedelta = (candX - B.getcoordX()) / B.getvelocityX();
+			}
+			else return;
+
+			const double candY = B.getYatX(candX);
+			if (!InRange(candY, dlim, ulim))
+				return;
 
 			DEBUG("Vertical Line Left Hit Detected at %11.4g\n", lineX);
-
-			const double framecount = (candX - B.getcoordX()) / B.getvelocityX();
 
 			double nextvelocityX = B.getvelocityX();
 			if (nextvelocityX > 0.0)
 				nextvelocityX = -nextvelocityX;
 
-			tryupdate(framecount, 1.0, 0.0, candX,
+			tryupdate(framedelta, 1.0, 0.0, candX,
 				nextvelocityX, B.getvelYatX(candX));
 		}
 		else {
-			const double candX = lineX + B.getradius();
+			double candX = lineX + B.getradius();
+			double framedelta;
 
-			if (!(B.getcoordX() < candX
-				|| B.getcoordX() + B.getvelocityX() * nextframedelta < candX))
-				return;
-			else {
-				const double candY = B.getYatX(candX);
-				if (!(dlim + tol < candY && candY < ulim - tol))
-					return;
+			if (B.getcoordX() < candX) {
+				if (InRange(B.getcoordY(), dlim, ulim) && B.getvelocityX() < 0.0) {
+					candX = B.getcoordX();
+					framedelta = 0.0;
+				}
+				else return;
 			}
+			else if (B.getcoordX() + B.getvelocityX() * nextframedelta < candX) {
+				framedelta = (candX - B.getcoordX()) / B.getvelocityX();
+			}
+			else return;
+			
+			const double candY = B.getYatX(candX);
+			if (!InRange(candY, dlim, ulim))
+				return;
+			
 
 			DEBUG("Vertical Line Right Hit Detected at %11.4g\n", lineX);
-
-			const double framecount = (candX - B.getcoordX()) / B.getvelocityX();
 
 			double nextvelocityX = B.getvelocityX();
 			if (nextvelocityX < 0.0)
 				nextvelocityX = -nextvelocityX;
 
-			tryupdate(framecount, 1.0, 0.0, candX,
+			tryupdate(framedelta, 1.0, 0.0, candX,
 				nextvelocityX, B.getvelYatX(candX));
 		}
 	}
@@ -299,16 +319,26 @@ public:
 
 			if (B.getpeakcoordY() <= candY)
 				return;
-			else if (B.getcoordY() > candY)
-				;
-			else if (B.getcoordX() < B.getpeakcoordX() &&
-				B.getleftXatY(candY)
-				< B.getcoordX() + B.getvelocityX() * nextframedelta)
-				;
-			else if (B.getcoordX() >= B.getpeakcoordX() &&
-				B.getrightXatY(candY)
-				> B.getcoordX() + B.getvelocityX() * nextframedelta)
-				;
+			else if (B.getcoordY() > candY) {
+				if (InRange(B.getcoordX(), llim, rlim) && B.getvelocityY() > 0.0) {
+
+				}
+				else return;
+			}
+			else if (B.getcoordX() < B.getpeakcoordX()) {
+				if (B.getleftXatY(candY)
+					< B.getcoordX() + B.getvelocityX() * nextframedelta) {
+
+				}
+				else return;
+			}
+			else if (B.getcoordX() >= B.getpeakcoordX()) {
+				if (B.getrightXatY(candY)
+					> B.getcoordX() + B.getvelocityX() * nextframedelta) {
+
+				}
+				else return;
+			}
 			else
 				return;
 
@@ -323,7 +353,7 @@ public:
 				candX = B.getrightXatY(candY);
 			}
 
-			if (!(llim + tol < candX && candX < rlim - tol))
+			if (!InRange(candX, llim, rlim))
 				return;
 
 			DEBUG("Horizontal Line Bottom Hit Detected at %11.4g\n", lineY);
@@ -340,18 +370,25 @@ public:
 			double candX;
 			double framedelta;
 
-			if (B.getcoordY() < candY)
-				;
-			else if (B.getvelocityX() < 0.0 &&
-				B.getleftXatY(candY)
-			> B.getcoordX() + B.getvelocityX() * nextframedelta)
-				;
-			else if (B.getvelocityX() >= 0.0 &&
-				B.getrightXatY(candY)
-				< B.getcoordX() + B.getvelocityX() * nextframedelta)
-				;
-			else
-				return;
+			if (B.getcoordY() < candY) {
+				if (InRange(B.getcoordX(), llim, rlim) && B.getvelocityY() < 0.0) {
+
+				}
+				else return;
+			}
+			else if (B.getvelocityX() < 0.0) {
+				if (B.getleftXatY(candY) > B.getcoordX() + B.getvelocityX() * nextframedelta) {
+
+				}
+				else return;
+			}
+			else if (B.getcoordX() >= B.getpeakcoordX()) {
+				if (B.getrightXatY(candY) < B.getcoordX() + B.getvelocityX() * nextframedelta) {
+
+				}
+				else return;
+			}
+			else return;
 
 			if (B.getvelocityX() < 0.0) {
 				framedelta = (B.getleftXatY(candY) - B.getcoordX()) / B.getvelocityX();
@@ -362,7 +399,7 @@ public:
 				candX = B.getrightXatY(candY);
 			}
 
-			if (!(llim + tol < candX && candX < rlim - tol))
+			if (!InRange(candX, llim, rlim))
 				return;
 
 			DEBUG("Horizontal Line Up Hit Detected at %11.4g\n", lineY);
@@ -378,6 +415,11 @@ public:
 
 	void considerPoint(double PX, double PY) {
 		
+		if ((B.getcoordX() - PX) * B.getvelocityX() + (B.getcoordY() - PY) * B.getvelocityY() < 0.0) {
+
+		}
+		else return;
+
 		const double nextX = B.getcoordX() + nextframedelta * B.getvelocityX();
 		const double nextY = B.getYatX(nextX);
 
@@ -440,8 +482,8 @@ void Ball::nextframe() {
 			const Block& B = *PB;
 			F.considerHorizontal(B.getDown(), B.getLeft(), B.getRight(), B.getBounceDown());
 			F.considerHorizontal(B.getUp(), B.getLeft(), B.getRight(), B.getBounceUp());
-			F.considerVertical(B.getLeft(), B.getUp(), B.getDown(), B.getBounceLeft());
-			F.considerVertical(B.getRight(), B.getUp(), B.getDown(), B.getBounceRight());
+			F.considerVertical(B.getLeft(), B.getDown(), B.getUp(), B.getBounceLeft());
+			F.considerVertical(B.getRight(), B.getDown(), B.getUp(), B.getBounceRight());
 
 			F.considerPoint(B.getLeft(), B.getUp());
 			F.considerPoint(B.getLeft(), B.getDown());

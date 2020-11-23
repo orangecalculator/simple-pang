@@ -69,3 +69,7 @@ void ProceedFrame() {
 	framecount++;
 	DEBUG("proceeding frame #% 8d\n", framecount);
 }
+
+long getFrameCount() {
+	return framecount;
+}

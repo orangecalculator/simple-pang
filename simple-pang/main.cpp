@@ -152,6 +152,7 @@ static void Pang_Init() {
 
 	blocks.push_back(new OuterFrameBlock(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown));
 	blocks.push_back(new Block(0.4, 0.5, 0.1, -0.1));
+	//blocks.push_back(new Block(0.11, 0.3, 0.2, -0.2));
 
 	balls.push_back(Ball(-BallMaxSize / 2, 0, BallMaxSize / 2, false));
 	balls.push_back(Ball(+BallMaxSize / 2, 0, BallMaxSize / 2, true));
@@ -236,6 +237,21 @@ static void Pang_renderScene() {
 
 	for (const Ball& B : balls)
 		B.draw();
+
+	{
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glRasterPos2d(GameFrameLeft, GameFrameUp);
+
+		const char* frameshow = "Frame No ";
+		char buf[0x10] = "Frame #";
+		if (_ltoa_s(getFrameCount(), buf, 10) == 0) {
+			for (const char* p = frameshow; *p; ++p)
+				glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *p);
+			for (const char* p = buf; *p; ++p)
+				glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *p);
+		}
+	}
+	
 
 	glDisable(GL_DEPTH_TEST);
 

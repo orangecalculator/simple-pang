@@ -236,14 +236,6 @@ static void Pang_renderScene() {
 
 	for (const Ball& B : balls)
 		B.draw();
-	glColor3f(0, 1, 1);
-	glBegin(GL_POINTS);
-	glVertex3f(0, -0.1, 0);
-	glEnd();
-	glBegin(GL_LINES);
-	glVertex3f(0.3, 0.1, 0);
-	glVertex3f(-0.3, 0.1, 0);
-	glEnd();
 
 	glDisable(GL_DEPTH_TEST);
 

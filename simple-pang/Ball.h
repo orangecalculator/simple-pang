@@ -23,7 +23,6 @@ public:
 	double getvelocityX() const;
 	double getvelocityY() const;
 	double getradius() const;
-	double getbouncespeed() const;
 
 	double getYatX(double coordX) const;
 	double getleftXatY(double coordY) const;

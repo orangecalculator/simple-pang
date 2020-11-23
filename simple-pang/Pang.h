@@ -30,6 +30,8 @@ constexpr double BallMaxSize = 0.2;
 
 constexpr int fps = 60;
 
+////// HELPERS //////
+
 #ifdef DEBUG
 #undef DEBUG
 #include <stdio.h>
@@ -37,5 +39,8 @@ constexpr int fps = 60;
 #else
 #define DEBUG(...)
 #endif
+
+template<typename T>
+static inline T square(T x) { return x * x; }
 
 #endif /* _PANG_H_ */

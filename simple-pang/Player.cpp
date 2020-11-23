@@ -4,7 +4,7 @@
 
 constexpr double HarpoonINVALID = -1.0;
 
-Player::Player() : coord{0.0f, GameFrameDown}, harpoon(HarpoonINVALID) {
+Player::Player() : coord{ 0.0f, GameFrameDown }, harpoon(HarpoonINVALID) {
 
 }
 
@@ -12,20 +12,20 @@ bool Player::harpoonvalid() const {
 	return (harpoon >= GameFrameDown - tol);
 }
 
-void Player::setCoord(float x, float y) {
+void Player::setCoord(double x, double y) {
 	coord[0] = x;
 	coord[1] = y;
 }
 
-void Player::setHarpoon(float _harpoon) {
+void Player::setHarpoon(double _harpoon) {
 	harpoon = _harpoon;
 }
 
-const float* Player::getCoord() const{
+const double* Player::getCoord() const {
 	return coord;
 }
 
-float Player::getHarpoon() const {
+double Player::getHarpoon() const {
 	return harpoon;
 }
 
@@ -33,7 +33,7 @@ void Player::useHarpoon() {
 	harpoon = HarpoonINVALID;
 }
 
-void Player::move(float dx, float dy) {
+void Player::move(double dx, double dy) {
 	if (!harpoonvalid()) {
 		coord[0] += dx;
 		coord[1] += dy;
@@ -61,28 +61,28 @@ void Player::draw() const {
 
 	//to be implemented
 	glPointSize(5);
-	
+
 	glBegin(GL_POINTS);
-	glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
-	glVertex2f(coord[0], coord[1]);
+	glColor4d(0.0f, 1.0f, 0.0f, 0.0f);
+	glVertex2d(coord[0], coord[1]);
 	glEnd();
 
 	if (harpoonvalid()) {
 		DEBUG("drawing harpoon x %5.2f y %5.2f\n", coord[0], harpoon);
 
 		glBegin(GL_LINES);
-		glColor4f(0.0f, 1.0f, 1.0f, 0.0f);
-		glVertex2f(coord[0], coord[1]);
-		glVertex2f(coord[0], harpoon);
+		glColor4d(0.0f, 1.0f, 1.0f, 0.0f);
+		glVertex2d(coord[0], coord[1]);
+		glVertex2d(coord[0], harpoon);
 		glEnd();
 
 		glBegin(GL_POINTS);
-		glColor4f(0.0f, 1.0f, 0.0f, 0.0f);
-		glVertex2f(coord[0], harpoon);
+		glColor4d(0.0f, 1.0f, 0.0f, 0.0f);
+		glVertex2d(coord[0], harpoon);
 		glEnd();
 	}
 
 	glPointSize(1);
-	
+
 	glPopMatrix();
 }

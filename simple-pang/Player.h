@@ -1,24 +1,24 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
-class Player{
+class Player {
 private:
-	float coord[2];
-	float harpoon;
+	double coord[2];
+	double harpoon;
 
 	bool harpoonvalid() const;
 
 public:
 	Player();
-	
-	void setCoord(float x, float y);
-	void setHarpoon(float harpoon);
 
-	const float* getCoord() const;
-	float getHarpoon() const;
+	void setCoord(double x, double y);
+	void setHarpoon(double harpoon);
+
+	const double* getCoord() const;
+	double getHarpoon() const;
 
 	void useHarpoon();
-	void move(float dx, float dy);
+	void move(double dx, double dy);
 	void nextframe();
 
 	void launch();

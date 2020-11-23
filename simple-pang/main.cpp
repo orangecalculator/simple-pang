@@ -150,8 +150,8 @@ static void Pang_Init() {
 
 	initTexture();
 
-	blocks.push_back(Block(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown));
-	blocks.push_back(Block(0.4, 0.5, 0.1, -0.1));
+	blocks.push_back(new OuterFrameBlock(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown));
+	blocks.push_back(new Block(0.4, 0.5, 0.1, -0.1));
 
 	balls.push_back(Ball(-BallMaxSize / 2, 0, BallMaxSize / 2, false));
 	balls.push_back(Ball(+BallMaxSize / 2, 0, BallMaxSize / 2, true));
@@ -160,6 +160,12 @@ static void Pang_Init() {
 	//PlaySound(TEXT("bgm.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
 
 
+}
+
+static void Pang_Exit() {
+	for (Block* PB : blocks)
+		delete PB;
+	blocks.clear();
 }
 
 static void Pang_IdleAction() {
@@ -217,8 +223,8 @@ static void Pang_renderScene() {
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	for (const Block& B : blocks)
-		B.draw();
+	for (const Block* PB : blocks)
+		PB->draw();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//Game Inner Frame End

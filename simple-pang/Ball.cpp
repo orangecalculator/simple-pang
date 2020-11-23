@@ -5,90 +5,6 @@
 #include <GL/glut.h>
 #include <math.h>
 
-/*
-	Ball Trajectory
-	Y = - (gravity / (2 * speedX ** 2)) * (X - speedX * speedY / gravity) ** 2
-		+ (speedY ** 2 / (2 * gravity))
-*/
-
-Ball::Ball(double InitX, double InitY, double radius, bool goRight)
-	: coord{ InitX, InitY }, peakcoord{ InitX, InitY },
-		velocityX(goRight ? BallSpeedX : -BallSpeedX), radius(radius){
-
-}
-
-template<typename T>
-static inline T square(T x) { return x * x; }
-
-void Ball::setvelocity(double velX, double velY) {
-	velocityX = velX;
-
-	peakcoord[0] = coord[0] + velocityX * velY / BallGravity;
-	peakcoord[1] = coord[1] + square(velY) / (2 * BallGravity);
-}
-
-double Ball::getcoordX() const {
-	return coord[0];
-}
-
-double Ball::getcoordY() const {
-	return coord[1];
-}
-
-double Ball::getpeakcoordX() const {
-	return peakcoord[0];
-}
-
-double Ball::getpeakcoordY() const {
-	return peakcoord[1];
-}
-
-double Ball::getvelocityX() const {
-	return velocityX;
-}
-
-double Ball::getvelocityY() const {
-	return getvelYatX(coord[0]);
-}
-
-double Ball::getradius() const {
-	return radius;
-}
-
-double Ball::getbouncespeed() const {
-	constexpr double BallSizeScale = BallMaxSize / 8.0;
-	
-	const double x = radius / BallSizeScale;
-	
-	// f(x) = Max * (1 - exp(- x / scale))
-	return BallMaxSpeedY * (1 - 1 / (1.0 + x + 0.5 * square(x)));
-}
-
-void Ball::mirror(double ux, double uy, double uc) {
-	//mirror against line ux * x + uy * y = uc
-
-	const double absusq = square(ux) + square(uy);
-	if (absusq < tol) {
-		return;
-	}
-
-	double velocityY = getvelocityY();
-
-	{
-		const double diff = 2 * (ux * coord[0] + uy * coord[1] - uc) / absusq;
-		coord[0] -= diff * ux;
-		coord[1] -= diff * uy;
-	}
-
-	{
-		const double diff = 2 * (ux * velocityX + uy * velocityY) / absusq;
-		velocityX -= diff * ux;
-		velocityY -= diff * uy;
-		setvelocity(velocityX, velocityY);
-	}
-	
-}
-
 typedef struct VEC2D {
 	double X;
 	double Y;
@@ -170,6 +86,82 @@ static double findinternaldiv(double PX, double PY, double SX, double SY, double
 
 }
 
+static inline double parabolaconst(double SpeedX) {
+	return (BallGravity / (2 * square(SpeedX)));
+}
+
+/*
+	Ball Trajectory
+	Y = - (gravity / (2 * speedX ** 2)) * (X - speedX * speedY / gravity) ** 2
+		+ (speedY ** 2 / (2 * gravity))
+*/
+
+Ball::Ball(double InitX, double InitY, double radius, bool goRight)
+	: coord{ InitX, InitY }, peakcoord{ InitX, InitY },
+		velocityX(goRight ? BallSpeedX : -BallSpeedX), radius(radius){
+
+}
+
+void Ball::setvelocity(double velX, double velY) {
+	velocityX = velX;
+
+	peakcoord[0] = coord[0] + velocityX * velY / BallGravity;
+	peakcoord[1] = coord[1] + square(velY) / (2 * BallGravity);
+}
+
+double Ball::getcoordX() const {
+	return coord[0];
+}
+
+double Ball::getcoordY() const {
+	return coord[1];
+}
+
+double Ball::getpeakcoordX() const {
+	return peakcoord[0];
+}
+
+double Ball::getpeakcoordY() const {
+	return peakcoord[1];
+}
+
+double Ball::getvelocityX() const {
+	return velocityX;
+}
+
+double Ball::getvelocityY() const {
+	return getvelYatX(coord[0]);
+}
+
+double Ball::getradius() const {
+	return radius;
+}
+
+void Ball::mirror(double ux, double uy, double uc) {
+	//mirror against line ux * x + uy * y = uc
+
+	const double absusq = square(ux) + square(uy);
+	if (absusq < tol) {
+		return;
+	}
+
+	double velocityY = getvelocityY();
+
+	{
+		const double diff = 2 * (ux * coord[0] + uy * coord[1] - uc) / absusq;
+		coord[0] -= diff * ux;
+		coord[1] -= diff * uy;
+	}
+
+	{
+		const double diff = 2 * (ux * velocityX + uy * velocityY) / absusq;
+		velocityX -= diff * ux;
+		velocityY -= diff * uy;
+		setvelocity(velocityX, velocityY);
+	}
+	
+}
+
 bool Ball::collision(double posX, double posY) const {
 	/*
 		test collision with a point (posX, posY)
@@ -180,10 +172,6 @@ bool Ball::collision(double posX, double posY) const {
 
 bool Ball::collision(double LX, double LY, double RX, double RY) const {
 	return (pointlinedistsq(coord[0], coord[1], LX, LY, RX, RY) < square(radius));
-}
-
-static inline double parabolaconst(double SpeedX) {
-	return (BallGravity / (2 * square(SpeedX)));
 }
 
 double Ball::getYatX(double coordX) const {
@@ -256,7 +244,7 @@ public:
 		}
 	}
 
-	void considerVertical(double lineX, double ulim, double dlim) {
+	void considerVertical(double lineX, double ulim, double dlim, double (*bouncespeed)(double originalspeed, const Ball&)) {
 		if (B.getcoordX() < lineX) {
 			const double candX = lineX - B.getradius();
 
@@ -305,7 +293,7 @@ public:
 		}
 	}
 
-	void considerHorizontal(double lineY, double llim, double rlim) {
+	void considerHorizontal(double lineY, double llim, double rlim, double (*bouncespeed)(double originalspeed, const Ball&)) {
 		if (B.getcoordY() < lineY) {
 			const double candY = lineY - B.getradius();
 
@@ -340,7 +328,7 @@ public:
 
 			DEBUG("Horizontal Line Bottom Hit Detected at %11.4g\n", lineY);
 
-			double nextvelocityY = B.getvelYatX(candX);
+			double nextvelocityY = bouncespeed(B.getvelYatX(candX), B);
 			if (nextvelocityY > 0.0)
 				nextvelocityY = -nextvelocityY;
 
@@ -379,8 +367,12 @@ public:
 
 			DEBUG("Horizontal Line Up Hit Detected at %11.4g\n", lineY);
 
+			double nextvelocityY = bouncespeed(B.getvelYatX(candX), B);
+			if (nextvelocityY < 0.0)
+				nextvelocityY = -nextvelocityY;
+
 			tryupdate(framedelta, 0.0, 1.0, candY,
-				B.getvelocityX(), B.getbouncespeed());
+				B.getvelocityX(), nextvelocityY);
 		}
 	}
 
@@ -444,11 +436,12 @@ void Ball::nextframe() {
 
 	while (F.frameleft()) {
 
-		for (const Block& B : blocks) {
-			F.considerHorizontal(B.getDown(), B.getLeft(), B.getRight());
-			F.considerHorizontal(B.getUp(), B.getLeft(), B.getRight());
-			F.considerVertical(B.getLeft(), B.getUp(), B.getDown());
-			F.considerVertical(B.getRight(), B.getUp(), B.getDown());
+		for (const Block* PB : blocks) {
+			const Block& B = *PB;
+			F.considerHorizontal(B.getDown(), B.getLeft(), B.getRight(), B.getBounceDown());
+			F.considerHorizontal(B.getUp(), B.getLeft(), B.getRight(), B.getBounceUp());
+			F.considerVertical(B.getLeft(), B.getUp(), B.getDown(), B.getBounceLeft());
+			F.considerVertical(B.getRight(), B.getUp(), B.getDown(), B.getBounceRight());
 
 			F.considerPoint(B.getLeft(), B.getUp());
 			F.considerPoint(B.getLeft(), B.getDown());

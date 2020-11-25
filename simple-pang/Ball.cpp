@@ -415,7 +415,7 @@ public:
 
 	void considerPoint(double PX, double PY) {
 		
-		if ((B.getcoordX() - PX) * B.getvelocityX() + (B.getcoordY() - PY) * B.getvelocityY() < 0.0) {
+		if ((B.getcoordX() - PX) * B.getvelocityX() + (B.getcoordY() - PY) * B.getvelocityY() < -tol) {
 
 		}
 		else return;

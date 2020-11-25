@@ -315,43 +315,36 @@ public:
 
 	void considerHorizontal(double lineY, double llim, double rlim, double (*bouncespeed)(double originalspeed, const Ball&)) {
 		if (B.getcoordY() < lineY) {
-			const double candY = lineY - B.getradius();
+			double candY = lineY - B.getradius();
+			double candX;
+			double framedelta;
 
 			if (B.getpeakcoordY() <= candY)
 				return;
 			else if (B.getcoordY() > candY) {
 				if (InRange(B.getcoordX(), llim, rlim) && B.getvelocityY() > 0.0) {
-
+					candX = B.getcoordX();
+					candY = lineY;
+					framedelta = 0.0;
 				}
 				else return;
 			}
 			else if (B.getcoordX() < B.getpeakcoordX()) {
-				if (B.getleftXatY(candY)
-					< B.getcoordX() + B.getvelocityX() * nextframedelta) {
-
+				candX = B.getleftXatY(candY);
+				if (candX < B.getcoordX() + B.getvelocityX() * nextframedelta) {
+					framedelta = (candX - B.getcoordX()) / B.getvelocityX();
 				}
 				else return;
 			}
 			else if (B.getcoordX() >= B.getpeakcoordX()) {
-				if (B.getrightXatY(candY)
-					> B.getcoordX() + B.getvelocityX() * nextframedelta) {
-
+				candX = B.getrightXatY(candY);
+				if (candX > B.getcoordX() + B.getvelocityX() * nextframedelta) {
+					framedelta = (candX - B.getcoordX()) / B.getvelocityX();
 				}
 				else return;
 			}
 			else
 				return;
-
-			double framedelta;
-			double candX;
-			if (B.getcoordX() < B.getpeakcoordX()) {
-				framedelta = (B.getleftXatY(candY) - B.getcoordX()) / B.getvelocityX();
-				candX = B.getleftXatY(candY);
-			}
-			else {
-				framedelta = (B.getrightXatY(candY) - B.getcoordX()) / B.getvelocityX();
-				candX = B.getrightXatY(candY);
-			}
 
 			if (!InRange(candX, llim, rlim))
 				return;
@@ -366,38 +359,33 @@ public:
 				B.getvelocityX(), nextvelocityY);
 		}
 		else {
-			const double candY = lineY + B.getradius();
+			double candY = lineY + B.getradius();
 			double candX;
 			double framedelta;
 
 			if (B.getcoordY() < candY) {
 				if (InRange(B.getcoordX(), llim, rlim) && B.getvelocityY() < 0.0) {
-
+					candY = B.getcoordY();
+					candX = B.getcoordX();
+					framedelta = 0.0;
 				}
 				else return;
 			}
 			else if (B.getvelocityX() < 0.0) {
 				if (B.getleftXatY(candY) > B.getcoordX() + B.getvelocityX() * nextframedelta) {
-
+					candX = B.getleftXatY(candY);
+					framedelta = (B.getleftXatY(candY) - B.getcoordX()) / B.getvelocityX();
 				}
 				else return;
 			}
-			else if (B.getcoordX() >= B.getpeakcoordX()) {
+			else if (B.getvelocityX() > 0.0) {
 				if (B.getrightXatY(candY) < B.getcoordX() + B.getvelocityX() * nextframedelta) {
-
+					candX = B.getrightXatY(candY);
+					framedelta = (B.getrightXatY(candY) - B.getcoordX()) / B.getvelocityX();
 				}
 				else return;
 			}
 			else return;
-
-			if (B.getvelocityX() < 0.0) {
-				framedelta = (B.getleftXatY(candY) - B.getcoordX()) / B.getvelocityX();
-				candX = B.getleftXatY(candY);
-			}
-			else {
-				framedelta = (B.getrightXatY(candY) - B.getcoordX()) / B.getvelocityX();
-				candX = B.getrightXatY(candY);
-			}
 
 			if (!InRange(candX, llim, rlim))
 				return;

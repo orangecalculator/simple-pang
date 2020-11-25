@@ -220,7 +220,6 @@ static void Pang_renderScene() {
 	glEnable(GL_DEPTH_TEST);
 
 
-	//Game Inner Frame
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -228,7 +227,6 @@ static void Pang_renderScene() {
 		PB->draw();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//Game Inner Frame End
 
 	P.draw();
 	drawPlayerTexture();

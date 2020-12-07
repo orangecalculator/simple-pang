@@ -147,6 +147,8 @@
     <ClCompile Include="PangIO.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Text.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
@@ -154,6 +156,8 @@
     <ClInclude Include="PangIO.h" />
     <ClInclude Include="Pang.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Text.h" />
+    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

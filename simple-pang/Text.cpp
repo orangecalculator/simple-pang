@@ -1,23 +1,19 @@
 #include "Text.h"
 
-Text::Text(const std::array<float, 2>& position) : Text({ 1.0f, 1.0f, 1.0f }, position, GLUT_BITMAP_8_BY_13) {
-
-}
-
-Text::Text(const std::array<float, 3>& color,
-	const std::array<float, 2>& position,
+Text::Text(const std::array<double, 2>& position,
+	const std::array<double, 3>& color,
 	void * font) :
-	color(color), position(position), font(font) {
+	position(position), color(color), font(font) {
 
 }
 
-void Text::setColor(float r, float g, float b) {
+void Text::setColor(double r, double g, double b) {
 	color[0] = r;
 	color[1] = g;
 	color[2] = b;
 }
 
-void Text::setPosition(float x, float y) {
+void Text::setPosition(double x, double y) {
 	position[0] = x;
 	position[1] = y;
 }
@@ -26,11 +22,11 @@ void Text::setFont(void* _font) {
 	font = _font;
 }
 
-const float* Text::getColor() const {
+const double* Text::getColor() const {
 	return color.data();
 }
 
-const float* Text::getPosition() const {
+const double* Text::getPosition() const {
 	return position.data();
 }
 

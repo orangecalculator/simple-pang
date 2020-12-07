@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-
+#include <sstream>
 
 #include <Windows.h>
 #include <mmsystem.h>
@@ -23,6 +23,7 @@
 #pragma comment(lib, "winmm.lib")
 
 #include "Texture.h"
+#include "Text.h"
 
 using namespace std;
 
@@ -63,7 +64,7 @@ void drawPlayerTexture() {
 
 	float x = P.getCoord()[0];
 	float y = P.getCoord()[1];
-	float size = 0.1;
+	float size = PlayerCollideBoxSize;
 	glTexCoord2f(0, 0); glVertex3f(x - size, y - size, 0.0);
 	glTexCoord2f(0, 1); glVertex3f(x - size, y + size, 0.0);
 	glTexCoord2f(1, 1); glVertex3f(x + size, y + size, 0.0);
@@ -71,6 +72,23 @@ void drawPlayerTexture() {
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
+}
+
+void displayFrameCount() {
+	static Text FrameDisplay({ GameFrameLeft, GameFrameUp });
+
+	std::stringstream frametext;
+
+	frametext << "Frame No ";
+	frametext << getFrameCount();
+	FrameDisplay.draw(frametext.str());
+}
+
+void displayLife() {
+	static Text LifeDisplay({ GameFrameLeft, GameFrameDown });
+
+	if(P.getLife() > 0)
+		LifeDisplay.draw(std::string(P.getLife(), 'L'));
 }
 
 static void Pang_Init() {
@@ -84,7 +102,6 @@ static void Pang_Init() {
 
 	balls.push_back(Ball(-BallMaxSize / 2, 0, BallMaxSize / 2, false));
 	balls.push_back(Ball(+BallMaxSize / 2, 0, BallMaxSize / 2, true));
-
 
 	//PlaySound(TEXT("bgm.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
 }
@@ -104,10 +121,6 @@ static void Pang_IdleAction() {
 
 		for (Ball& B : balls) {
 			B.nextframe();
-			//if (B.collision(GameFrameRight, GameFrameDown, GameFrameRight, GameFrameUp))
-			//	DEBUG("illegal collision detected\n");
-			//if(B.collision(GameFrameLeft, GameFrameDown, GameFrameLeft, GameFrameUp))
-			//	DEBUG("illegal collision detected\n");
 		}
 
 		////harpoon collision
@@ -127,6 +140,15 @@ static void Pang_IdleAction() {
 				break;
 			}
 		}
+
+		for (const Ball& B : balls)
+			P.checkcollision(B);
+
+		if (P.getLife() <= 0) {
+			glutIdleFunc(NULL);
+			glutKeyboardFunc(NULL);
+			glutSpecialFunc(NULL);
+		}
 	}
 
 	glutPostRedisplay();
@@ -141,7 +163,6 @@ static void Pang_renderScene() {
 	glLoadIdentity();
 
 	drawSquareWithTexture();
-
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -162,20 +183,8 @@ static void Pang_renderScene() {
 	for (const Ball& B : balls)
 		B.draw();
 
-	{
-		glColor3f(1.0f, 1.0f, 1.0f);
-		glRasterPos2d(GameFrameLeft, GameFrameUp);
-
-		const char* frameshow = "Frame No ";
-		char buf[0x10] = "Frame #";
-		if (_ltoa_s(getFrameCount(), buf, 10) == 0) {
-			for (const char* p = frameshow; *p; ++p)
-				glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *p);
-			for (const char* p = buf; *p; ++p)
-				glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *p);
-		}
-	}
-	
+	displayFrameCount();
+	displayLife();
 
 	glDisable(GL_DEPTH_TEST);
 

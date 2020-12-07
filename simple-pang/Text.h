@@ -8,22 +8,21 @@
 class Text
 {
 private:
-	std::array<float, 3> color;
-	std::array<float, 2> position;
+	std::array<double, 3> color;
+	std::array<double, 2> position;
 	void* font;
 
 public:
-	Text(const std::array<float, 2>& position);
-	Text(const std::array<float, 3>& color,
-		const std::array<float, 2>& position,
-		void * font);
+	Text(const std::array<double, 2>& position = std::array<double, 2>{0.0, 0.0},
+		const std::array<double, 3>& color = std::array<double, 3>{1.0, 1.0, 1.0},
+		void * font = GLUT_BITMAP_8_BY_13);
 
-	void setColor(float r, float g, float b);
-	void setPosition(float x, float y);
+	void setColor(double r, double g, double b);
+	void setPosition(double x, double y);
 	void setFont(void* font);
 
-	const float* getColor() const;
-	const float* getPosition() const;
+	const double* getColor() const;
+	const double* getPosition() const;
 	void* getFont() const;
 
 	void draw(const std::string&);

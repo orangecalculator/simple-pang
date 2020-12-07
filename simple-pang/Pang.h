@@ -30,6 +30,10 @@ constexpr double BallMaxSize = 0.2;
 
 constexpr int fps = 60;
 
+constexpr int LifeInit = 3;
+constexpr long CollideDelay = fps * 5;
+constexpr double PlayerCollideBoxSize = 0.1;
+
 ////// HELPERS //////
 
 #ifdef DEBUG

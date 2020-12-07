@@ -1,4 +1,11 @@
 #include <iostream>
+
+#include <Windows.h>
+#include <mmsystem.h>
+#include <winnt.h>
+
+#pragma comment(lib, "winmm.lib")
+
 #include "Texture.h"
 
 using namespace std;

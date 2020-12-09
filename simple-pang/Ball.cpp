@@ -5,6 +5,9 @@
 #include <GL/glut.h>
 #include <math.h>
 
+#include <iostream>
+using namespace std;
+
 static inline bool InRange(double value, double lowerlimit, double upperlimit) {
 	return (lowerlimit + tol < value&& value < upperlimit - tol);
 }
@@ -100,10 +103,12 @@ static inline double parabolaconst(double SpeedX) {
 		+ (speedY ** 2 / (2 * gravity))
 */
 
+Material m;
+
 Ball::Ball(double InitX, double InitY, double radius, bool goRight)
 	: coord{ InitX, InitY }, peakcoord{ InitX, InitY },
-		velocityX(goRight ? BallSpeedX : -BallSpeedX), radius(radius){
-
+		velocityX(goRight ? BallSpeedX : -BallSpeedX), radius(radius),
+		mtl(m){
 }
 
 void Ball::setvelocity(double velX, double velY) {
@@ -510,12 +515,29 @@ void Ball::futurenextframe() {
 
 }
 
+void Ball::setMTL(const Material& m) {
+	mtl.setEmission(m.getEmission()[0], m.getEmission()[1], m.getEmission()[2], m.getEmission()[3]);
+	mtl.setAmbient(m.getAmbient()[0], m.getAmbient()[1], m.getAmbient()[2], m.getAmbient()[3]);
+	mtl.setDiffuse(m.getDiffuse()[0], m.getDiffuse()[1], m.getDiffuse()[2], m.getDiffuse()[3]);
+	mtl.setSpecular(m.getSpecular()[0], m.getSpecular()[1], m.getSpecular()[2], m.getSpecular()[3]);
+	mtl.setShininess(m.getShininess()[0]);
+}
+
 void Ball::draw() const {
 	glPushMatrix();
 
+	glShadeModel(GL_SMOOTH);
+	glMaterialfv(GL_FRONT, GL_EMISSION, &mtl.getEmission()[0]);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, &mtl.getAmbient()[0]);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, &mtl.getDiffuse()[0]);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, &mtl.getSpecular()[0]);
+	glMaterialfv(GL_FRONT, GL_SHININESS, mtl.getShininess());
+
+	//cout << mtl.getEmission()[0] << endl;
+
 	glTranslated(coord[0], coord[1], 0.0f);
 	glutSolidSphere(radius, BallSlice, BallStack);
-
+	
 	glPopMatrix();
 }
 

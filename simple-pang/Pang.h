@@ -31,7 +31,9 @@ constexpr double BallMaxSize = 0.2;
 constexpr int fps = 60;
 
 constexpr int LifeInit = 3;
-constexpr long CollideDelay = fps * 5;
+
+// 무적 시간을 3초로 함.
+constexpr long CollideDelay = fps * 3;
 constexpr double PlayerCollideBoxSize = 0.1;
 
 ////// HELPERS //////

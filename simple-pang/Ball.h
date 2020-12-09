@@ -2,6 +2,7 @@
 #define _BALL_H_
 
 #include <vector>
+#include "Material.h"
 
 class Ball
 {
@@ -12,6 +13,7 @@ private:
 	double velocityX;
 
 	double radius;
+	Material mtl;
 
 public:
 	Ball(double initcoordX, double initcoordY, double radius, bool goRight);
@@ -37,6 +39,8 @@ public:
 
 	void nextframe();
 	void futurenextframe();
+
+	void setMTL(const Material& m);
 
 	void draw() const;
 };

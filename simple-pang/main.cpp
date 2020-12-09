@@ -25,14 +25,19 @@
 #include "Texture.h"
 #include "Text.h"
 
+#include "Light.h"
+
 using namespace std;
 
 static Player P;
 static PangIO PIO(P);
 
-void initTexture() {
+Light light(1, 1, 1 / 2, GL_LIGHT0);
 
-}
+
+//void initTexture() {
+//
+//}
 
 void drawSquareWithTexture() {
 	glEnable(GL_TEXTURE_2D);
@@ -94,7 +99,11 @@ void displayLife() {
 static void Pang_Init() {
 	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
 
-	initTexture();
+	//initTexture();
+
+	light.setAmbient(0.5, 0.5, 0.5, 1.0);
+	light.setDiffuse(0.7, 0.7, 0.7, 1.0);
+	light.setSpecular(1.0, 1.0, 1.0, 1.0);
 
 	blocks.push_back(new OuterFrameBlock(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown));
 	blocks.push_back(new Block(0.4, 0.5, 0.1, -0.1));
@@ -103,6 +112,8 @@ static void Pang_Init() {
 	balls.push_back(Ball(-BallMaxSize / 2, 0, BallMaxSize / 2, false));
 	balls.push_back(Ball(+BallMaxSize / 2, 0, BallMaxSize / 2, true));
 
+
+	// 게임 소리 나게 하는 코드. 실제 제출 시에는 comment in해야 함.
 	//PlaySound(TEXT("bgm.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
 }
 
@@ -159,6 +170,9 @@ static void Pang_renderScene() {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -166,6 +180,9 @@ static void Pang_renderScene() {
 
 	glEnable(GL_DEPTH_TEST);
 
+	glEnable(GL_LIGHTING);
+	glEnable(light.getID());
+	light.draw();
 
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -186,9 +203,12 @@ static void Pang_renderScene() {
 	displayFrameCount();
 	displayLife();
 
+	glDisable(light.getID());
+	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 
 	glutSwapBuffers();
+
 }
 
 static void Pang_KeyboardAction(unsigned char key, int x, int y) {

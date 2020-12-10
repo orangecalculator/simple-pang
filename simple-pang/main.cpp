@@ -42,7 +42,7 @@ Light light(1, 1, 1 / 2, GL_LIGHT0);
 void drawSquareWithTexture() {
 	glEnable(GL_TEXTURE_2D);
 
-	static Texture bgImage("meteo.jpg");
+	static Texture bgImage("background_image.png");
 	bgImage.draw();
 
 	glBegin(GL_QUADS);
@@ -62,13 +62,14 @@ void drawSquareWithTexture() {
 void drawPlayerTexture() {
 	glEnable(GL_TEXTURE_2D);
 
-	static Texture pImage("yw.jpg");
+	static Texture pImage("player_image.jpg");
 	pImage.draw();
 
 	glBegin(GL_QUADS);
 
 	float x = P.getCoord()[0];
 	float y = P.getCoord()[1];
+	//cout << x << " " << y << endl;
 	float size = PlayerCollideBoxSize;
 	glTexCoord2f(0, 0); glVertex3f(x - size, y - size, 0.0);
 	glTexCoord2f(0, 1); glVertex3f(x - size, y + size, 0.0);
@@ -78,6 +79,8 @@ void drawPlayerTexture() {
 
 	glDisable(GL_TEXTURE_2D);
 }
+
+
 
 void displayFrameCount() {
 	static Text FrameDisplay({ GameFrameLeft, GameFrameUp });
@@ -90,6 +93,7 @@ void displayFrameCount() {
 }
 
 void displayLife() {
+
 	static Text LifeDisplay({ GameFrameLeft, GameFrameDown });
 
 	if(P.getLife() > 0)
@@ -143,8 +147,13 @@ static void Pang_IdleAction() {
 
 				balls.erase(it);
 
-				balls.push_back(Ball(BcoordX - newradius, BcoordY, newradius, false));
-				balls.push_back(Ball(BcoordX + newradius, BcoordY, newradius, true));
+				// 작살을 3번 맞으면 공이 사라짐. 2 ** 3 = 8
+				if (newradius > 0.1 / 8) {
+					balls.push_back(Ball(BcoordX - newradius, BcoordY, newradius, false));
+					balls.push_back(Ball(BcoordX + newradius, BcoordY, newradius, true));
+				}
+
+				
 
 				P.useHarpoon();
 
@@ -154,6 +163,7 @@ static void Pang_IdleAction() {
 
 		for (const Ball& B : balls)
 			P.checkcollision(B);
+
 
 		if (P.getLife() <= 0) {
 			glutIdleFunc(NULL);
@@ -195,17 +205,20 @@ static void Pang_renderScene() {
 	P.draw();
 	drawPlayerTexture();
 
-	glColor3f(0, 1, 0);
+	glColor3f(1, 0, 0);
 
 	for (const Ball& B : balls)
 		B.draw();
 
-	displayFrameCount();
-	displayLife();
+	glEnable(GL_COLOR_MATERIAL);
+	
 
 	glDisable(light.getID());
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
+
+	displayFrameCount();
+	displayLife();
 
 	glutSwapBuffers();
 

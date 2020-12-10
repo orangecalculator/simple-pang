@@ -15,7 +15,7 @@ constexpr double GameFrameUp = 0.9;
 constexpr double GameFrameDown = -0.8;
 
 constexpr double Init_PlayerPosition_x = 0.0;
-constexpr double Init_PlayerPosition_y = GameFrameDown;
+constexpr double Init_PlayerPosition_y = 0.1 + GameFrameDown;
 
 constexpr double PlayerSpeed = 0.05;
 constexpr double HarpoonSpeed = 0.02;

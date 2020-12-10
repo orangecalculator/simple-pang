@@ -527,6 +527,7 @@ void Ball::draw() const {
 	glPushMatrix();
 
 	glShadeModel(GL_SMOOTH);
+
 	glMaterialfv(GL_FRONT, GL_EMISSION, &mtl.getEmission()[0]);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, &mtl.getAmbient()[0]);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, &mtl.getDiffuse()[0]);
@@ -534,10 +535,11 @@ void Ball::draw() const {
 	glMaterialfv(GL_FRONT, GL_SHININESS, mtl.getShininess());
 
 	//cout << mtl.getEmission()[0] << endl;
+	glEnable(GL_COLOR_MATERIAL);
 
 	glTranslated(coord[0], coord[1], 0.0f);
 	glutSolidSphere(radius, BallSlice, BallStack);
-	
+
 	glPopMatrix();
 }
 

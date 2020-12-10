@@ -5,8 +5,8 @@
 
 constexpr double tol = 1e-8;
 
-constexpr int WindowInitWidth = 600;
-constexpr int WindowInitHeight = 600;
+constexpr int WindowInitWidth = 1000;
+constexpr int WindowInitHeight = 1000;
 
 constexpr double GameFrameLeft = -0.9;
 constexpr double GameFrameRight = 0.9;
@@ -30,7 +30,7 @@ constexpr double BallMaxSize = 0.2;
 
 constexpr int fps = 60;
 
-constexpr int LifeInit = 3;
+constexpr int LifeInit = 5;
 
 // 무적 시간을 3초로 함.
 constexpr long CollideDelay = fps * 3;

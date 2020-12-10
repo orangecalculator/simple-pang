@@ -16,6 +16,7 @@ public:
 
 	void setCoord(double x, double y);
 	void setHarpoon(double harpoon);
+	void setLife(int lifeNumber);
 
 	const double* getCoord() const;
 	double getHarpoon() const;

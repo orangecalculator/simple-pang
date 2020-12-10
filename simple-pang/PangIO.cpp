@@ -32,8 +32,10 @@ void PangIO::submit() {
 	}
 	if (keyLEFT) {
 		keyLEFT = false;
-
-		player.move(-PlayerSpeed, 0);
+		if (player.getCoord()[0] > -0.8) {
+			player.move(-PlayerSpeed, 0);
+		}
+		
 	}
 	if (keyUP) {
 		keyUP = false;
@@ -42,8 +44,10 @@ void PangIO::submit() {
 	}
 	if (keyRIGHT) {
 		keyRIGHT = false;
-
-		player.move(PlayerSpeed, 0);
+		if (player.getCoord()[0] < 0.8) {
+			player.move(PlayerSpeed, 0);
+		}
+		
 	}
 	if (keyDOWN) {
 		keyDOWN = false;

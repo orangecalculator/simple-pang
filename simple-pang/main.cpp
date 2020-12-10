@@ -32,12 +32,13 @@ using namespace std;
 static Player P;
 static PangIO PIO(P);
 
+int stage = 1;
+
+int slowItemNumber = 4;
+
+extern double framedelta;
+
 Light light(1, 1, 1 / 2, GL_LIGHT0);
-
-
-//void initTexture() {
-//
-//}
 
 void drawSquareWithTexture() {
 	glEnable(GL_TEXTURE_2D);
@@ -46,14 +47,11 @@ void drawSquareWithTexture() {
 	bgImage.draw();
 
 	glBegin(GL_QUADS);
-	//glTexCoord2f(0, 0); glVertex3f(-boundaryX, -boundaryY / 1.5, 0.0);
-	//glTexCoord2f(0, 1); glVertex3f(-boundaryX, boundaryY / 1.5, 0.0);
-	//glTexCoord2f(1, 1); glVertex3f(boundaryX, boundaryY / 1.5, 0.0);
-	//glTexCoord2f(1, 0); glVertex3f(boundaryX, -boundaryY / 1.5, 0.0);
-	glTexCoord2f(0, 0); glVertex3f(-0.9, -0.9, 0.0);
+
+	glTexCoord2f(0, 0); glVertex3f(-0.9, -0.8, 0.0);
 	glTexCoord2f(0, 1); glVertex3f(-0.9, 0.9, 0.0);
 	glTexCoord2f(1, 1); glVertex3f(0.9, 0.9, 0.0);
-	glTexCoord2f(1, 0); glVertex3f(0.9, -0.9, 0.0);
+	glTexCoord2f(1, 0); glVertex3f(0.9, -0.8, 0.0);
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
@@ -69,7 +67,6 @@ void drawPlayerTexture() {
 
 	float x = P.getCoord()[0];
 	float y = P.getCoord()[1];
-	//cout << x << " " << y << endl;
 	float size = PlayerCollideBoxSize;
 	glTexCoord2f(0, 0); glVertex3f(x - size, y - size, 0.0);
 	glTexCoord2f(0, 1); glVertex3f(x - size, y + size, 0.0);
@@ -100,25 +97,95 @@ void displayLife() {
 		LifeDisplay.draw(std::string(P.getLife(), 'L'));
 }
 
+
+void displaySlowItem() {
+
+	static Text LifeDisplay({ GameFrameLeft, GameFrameDown-0.03 });
+
+	if (slowItemNumber > 0)
+		LifeDisplay.draw(std::string(slowItemNumber, 'S'));
+}
+
+void displayStageNumber() {
+	static Text StageNumberDisplay({ -0.1, GameFrameUp + 0.02 });
+
+	std::stringstream stagetext;
+	stagetext << "Stage: ";
+	stagetext << stage;
+
+	StageNumberDisplay.draw(stagetext.str());
+}
+
+void displayGameInfo1() {
+	static Text GameInfoDisplay({ -0.9, -0.8 - 0.07 });
+
+	std::stringstream gameinfotext;
+	gameinfotext << "If you push spacebar, harpoon will be shooted. ";
+
+
+	GameInfoDisplay.draw(gameinfotext.str());
+}
+
+void displayGameInfo2() {
+	static Text GameInfoDisplay({ -0.9, -0.8 - 0.1 });
+
+	std::stringstream gameinfotext;
+	gameinfotext << "If you push keyboard button 's', balls will move slowly for 3 seconds.";
+
+
+	GameInfoDisplay.draw(gameinfotext.str());
+}
+
+
+void displayGameInfo3() {
+	static Text GameInfoDisplay({ -0.9, -0.8 - 0.13 });
+
+	std::stringstream gameinfotext;
+	gameinfotext << "Get rid of all the balloons and go to the next stage. The balloons will be much faster.";
+
+
+	GameInfoDisplay.draw(gameinfotext.str());
+}
+
+int frameCounter;
+bool isSlow = false;
+
+void makeBallSlow() {
+	if (isSlow == false) {
+		frameCounter = getFrameCount();
+		framedelta /= 2;
+		isSlow = true;
+		slowItemNumber -= 1;
+	}
+}
+
 static void Pang_Init() {
+
+	static bool isFirst = true;
+
+
+	if (isFirst) {
+		light.setAmbient(0.5, 0.5, 0.5, 1.0);
+		light.setDiffuse(0.7, 0.7, 0.7, 1.0);
+		light.setSpecular(1.0, 1.0, 1.0, 1.0);
+
+		blocks.push_back(new OuterFrameBlock(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown));
+		blocks.push_back(new Block(0.4, 0.5, 0.1, -0.1));
+		//blocks.push_back(new Block(0.11, 0.3, 0.2, -0.2));
+
+		isFirst = false;
+	}
+	
 	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
 
-	//initTexture();
-
-	light.setAmbient(0.5, 0.5, 0.5, 1.0);
-	light.setDiffuse(0.7, 0.7, 0.7, 1.0);
-	light.setSpecular(1.0, 1.0, 1.0, 1.0);
-
-	blocks.push_back(new OuterFrameBlock(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown));
-	blocks.push_back(new Block(0.4, 0.5, 0.1, -0.1));
-	//blocks.push_back(new Block(0.11, 0.3, 0.2, -0.2));
-
-	balls.push_back(Ball(-BallMaxSize / 2, 0, BallMaxSize / 2, false));
-	balls.push_back(Ball(+BallMaxSize / 2, 0, BallMaxSize / 2, true));
+	
+	balls.push_back(Ball(0, 0, BallMaxSize / 2, true));
+	balls.push_back(Ball(0, 0, BallMaxSize / 2, false));
+	
 
 
-	// 게임 소리 나게 하는 코드. 실제 제출 시에는 comment in해야 함.
-	//PlaySound(TEXT("bgm.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
+	// 게임 소리 나게 하는 코드. 
+	PlaySound(TEXT("bgm.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
 }
 
 static void Pang_Exit() {
@@ -128,6 +195,15 @@ static void Pang_Exit() {
 }
 
 static void Pang_IdleAction() {
+
+	// 속도를 원상복귀시킴.
+	if (isSlow) {
+		if (frameCounter + 180 < getFrameCount()) {
+			framedelta *= 2;
+			isSlow = false;
+		}
+	}
+
 	while (!IsLastFrame()) {
 		ProceedFrame();
 
@@ -164,6 +240,17 @@ static void Pang_IdleAction() {
 		for (const Ball& B : balls)
 			P.checkcollision(B);
 
+		if (balls.size() == 0) {
+			stage += 1;
+			// stage가 진행될수록 공이 빨라짐.
+			framedelta += 0.5f;
+
+			balls.push_back(Ball(0, 0, BallMaxSize / 2, true));
+			balls.push_back(Ball(0, 0, BallMaxSize / 2, false));
+
+			P.setLife(5);
+			slowItemNumber = 4;
+		}
 
 		if (P.getLife() <= 0) {
 			glutIdleFunc(NULL);
@@ -219,6 +306,13 @@ static void Pang_renderScene() {
 
 	displayFrameCount();
 	displayLife();
+	displaySlowItem();
+	displayStageNumber();
+	displayGameInfo1();
+	displayGameInfo2();
+	displayGameInfo3();
+
+
 
 	glutSwapBuffers();
 
@@ -228,6 +322,9 @@ static void Pang_KeyboardAction(unsigned char key, int x, int y) {
 	switch (key) {
 	case ' ':
 		PIO.setkeySPACE();
+		break;
+	case 's':
+		makeBallSlow();
 		break;
 	}
 

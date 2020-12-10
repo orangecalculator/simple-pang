@@ -28,6 +28,10 @@ void Player::setHarpoon(double _harpoon) {
 	harpoon = _harpoon;
 }
 
+void  Player::setLife(int lifeNumber) {
+	life = lifeNumber;
+}
+
 const double* Player::getCoord() const {
 	return coord;
 }

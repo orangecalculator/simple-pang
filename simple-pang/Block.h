@@ -16,6 +16,8 @@ private:
 	double Up;
 	double Down;
 
+	Material mtl;
+
 public:
 	Block(double Left, double Right, double Up, double Down);
 

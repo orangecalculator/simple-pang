@@ -3,7 +3,7 @@
 #include <GL/glut.h>
 
 Block::Block(double Left, double Right, double Up, double Down)
-	: Left(Left), Right(Right), Up(Up), Down(Down) {
+	: Left(Left), Right(Right), Up(Up), Down(Down), mtl(Brass) {
 
 }
 
@@ -24,7 +24,9 @@ double Block::getDown() const {
 }
 
 void Block::draw() const {
-	glColor3f(0.0f, 1.0f, 0.0f);
+
+	mtl.draw();
+
 	glBegin(GL_QUADS);
 
 	glVertex2d(Left, Up);
@@ -41,16 +43,10 @@ OuterFrameBlock::OuterFrameBlock(double Left, double Right, double Up, double Do
 }
 
 void OuterFrameBlock::draw() const {
-	glColor3f(1.0f, 0.0f, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glBegin(GL_QUADS);
 
-	glVertex2d(getLeft(), getUp());
-	glVertex2d(getLeft(), getDown());
-	glVertex2d(getRight(), getDown());
-	glVertex2d(getRight(), getUp());
+	Block::draw();
 
-	glEnd();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 

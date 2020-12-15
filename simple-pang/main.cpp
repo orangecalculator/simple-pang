@@ -296,8 +296,6 @@ static void Pang_renderScene() {
 
 	for (const Ball& B : balls)
 		B.draw();
-
-	glEnable(GL_COLOR_MATERIAL);
 	
 
 	glDisable(light.getID());

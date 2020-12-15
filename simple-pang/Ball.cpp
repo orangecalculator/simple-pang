@@ -103,12 +103,10 @@ static inline double parabolaconst(double SpeedX) {
 		+ (speedY ** 2 / (2 * gravity))
 */
 
-Material m;
-
 Ball::Ball(double InitX, double InitY, double radius, bool goRight)
 	: coord{ InitX, InitY }, peakcoord{ InitX, InitY },
 		velocityX(goRight ? BallSpeedX : -BallSpeedX), radius(radius),
-		mtl(m){
+		mtl(Copper){
 }
 
 void Ball::setvelocity(double velX, double velY) {
@@ -528,16 +526,7 @@ void Ball::setMTL(const Material& m) {
 void Ball::draw() const {
 	glPushMatrix();
 
-	glShadeModel(GL_SMOOTH);
-
-	glMaterialfv(GL_FRONT, GL_EMISSION, &mtl.getEmission()[0]);
-	glMaterialfv(GL_FRONT, GL_AMBIENT, &mtl.getAmbient()[0]);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, &mtl.getDiffuse()[0]);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, &mtl.getSpecular()[0]);
-	glMaterialfv(GL_FRONT, GL_SHININESS, mtl.getShininess());
-
-	//cout << mtl.getEmission()[0] << endl;
-	glEnable(GL_COLOR_MATERIAL);
+	mtl.draw();
 
 	glTranslated(coord[0], coord[1], 0.0f);
 	glutSolidSphere(radius, BallSlice, BallStack);

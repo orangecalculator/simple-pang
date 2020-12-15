@@ -166,20 +166,13 @@ void makeBallSlow() {
 
 static void Pang_Init() {
 
-	static bool isFirst = true;
+	light.setAmbient(0.5, 0.5, 0.5, 1.0);
+	light.setDiffuse(0.7, 0.7, 0.7, 1.0);
+	light.setSpecular(1.0, 1.0, 1.0, 1.0);
 
-
-	if (isFirst) {
-		light.setAmbient(0.5, 0.5, 0.5, 1.0);
-		light.setDiffuse(0.7, 0.7, 0.7, 1.0);
-		light.setSpecular(1.0, 1.0, 1.0, 1.0);
-
-		OuterFrame = new OuterFrameBlock(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown);
-		blocks.push_back(OuterFrame);
-		blocks.push_back(new Block(0.4, 0.5, 0.1, -0.1));
-
-		isFirst = false;
-	}
+	OuterFrame = new OuterFrameBlock(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown);
+	blocks.push_back(OuterFrame);
+	blocks.push_back(new Block(0.4, 0.5, 0.1, -0.1));
 
 	// 게임 소리 나게 하는 코드. 
 	PlaySound(TEXT("bgm.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
@@ -223,7 +216,7 @@ static void Pang_IdleAction() {
 			B.nextframe(framedelta_stage(stage, isSlow));
 		}
 
-		////harpoon collision
+		//harpoon collision
 		for (auto it = balls.begin(); it != balls.end(); ++it) {
 			if (P.checkHarpooncollision(*it)) {
 				const double BcoordX = it->getcoordX();
@@ -275,12 +268,10 @@ static void Pang_renderScene() {
 	drawSquareWithTexture();
 
 	glEnable(GL_DEPTH_TEST);
-
 	glEnable(GL_LIGHTING);
 	glEnable(light.getID());
 	light.draw();
 
-	glColor3f(1.0f, 0.0f, 0.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	for (const Block* PB : blocks)
@@ -290,8 +281,6 @@ static void Pang_renderScene() {
 
 	P.draw();
 	drawPlayerTexture();
-
-	glColor3f(1, 0, 0);
 
 	for (const Ball& B : balls)
 		B.draw();
@@ -364,9 +353,18 @@ static void PangStandby_renderScene() {
 
 	drawSquareWithTexture();
 
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	glEnable(light.getID());
+	light.draw();
+
 	OuterFrame->draw();
-	drawSquareWithTexture();
+	P.draw();
 	drawPlayerTexture();
+
+	glDisable(light.getID());
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
 
 	displayFrameCount();
 	displayLife();

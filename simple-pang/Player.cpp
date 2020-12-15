@@ -133,9 +133,27 @@ void drawHarpoonEnd(double x, double y) {
 	glDisable(GL_TEXTURE_2D);
 }
 
+static void drawPlayerTexture(double x, double y) {
+	glEnable(GL_TEXTURE_2D);
+
+	static Texture pImage("player_image.jpg");
+	pImage.draw();
+
+	glNormal3d(0.0, 0.0, -1.0);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0); glVertex3f(x - PlayerCollideBoxSize, y - PlayerCollideBoxSize, 0.0);
+	glTexCoord2f(0, 1); glVertex3f(x - PlayerCollideBoxSize, y + PlayerCollideBoxSize, 0.0);
+	glTexCoord2f(1, 1); glVertex3f(x + PlayerCollideBoxSize, y + PlayerCollideBoxSize, 0.0);
+	glTexCoord2f(1, 0); glVertex3f(x + PlayerCollideBoxSize, y - PlayerCollideBoxSize, 0.0);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+}
 
 void Player::draw() const {
 	glPushMatrix();
+
+	drawPlayerTexture(getCoord()[0], getCoord()[1]);
 
 	if (harpoonvalid(harpoon)) {
 		DEBUG("drawing harpoon x %5.2f y %5.2f\n", coord[0], harpoon);
@@ -143,8 +161,6 @@ void Player::draw() const {
 		drawRope(coord[0], coord[1], harpoon);
 		drawHarpoonEnd(coord[0], harpoon);
 	}
-
-	
 
 	glPopMatrix();
 }

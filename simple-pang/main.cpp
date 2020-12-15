@@ -56,28 +56,6 @@ void drawSquareWithTexture() {
 	glDisable(GL_TEXTURE_2D);
 }
 
-void drawPlayerTexture() {
-	glEnable(GL_TEXTURE_2D);
-
-	static Texture pImage("player_image.jpg");
-	pImage.draw();
-
-	glBegin(GL_QUADS);
-
-	float x = P.getCoord()[0];
-	float y = P.getCoord()[1];
-	float size = PlayerCollideBoxSize;
-	glTexCoord2f(0, 0); glVertex3f(x - size, y - size, 0.0);
-	glTexCoord2f(0, 1); glVertex3f(x - size, y + size, 0.0);
-	glTexCoord2f(1, 1); glVertex3f(x + size, y + size, 0.0);
-	glTexCoord2f(1, 0); glVertex3f(x + size, y - size, 0.0);
-	glEnd();
-
-	glDisable(GL_TEXTURE_2D);
-}
-
-
-
 void displayFrameCount() {
 	static Text FrameDisplay({ GameFrameLeft, GameFrameUp });
 
@@ -280,7 +258,6 @@ static void Pang_renderScene() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	P.draw();
-	drawPlayerTexture();
 
 	for (const Ball& B : balls)
 		B.draw();
@@ -360,7 +337,6 @@ static void PangStandby_renderScene() {
 
 	OuterFrame->draw();
 	P.draw();
-	drawPlayerTexture();
 
 	glDisable(light.getID());
 	glDisable(GL_LIGHTING);

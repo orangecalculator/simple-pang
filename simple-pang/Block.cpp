@@ -27,7 +27,7 @@ void Block::draw() const {
 
 	mtl.draw();
 
-	glNormal3f(0.0f, 0.0f, -1.0f);
+	glNormal3d(0.0, 0.0, -1.0);
 	glBegin(GL_QUADS);
 
 	glVertex2d(Left, Up);

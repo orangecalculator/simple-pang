@@ -3,11 +3,11 @@
 #include "Material.h"
 
 Material::Material() {
-	setEmission(0.1, 0.1, 0.1, 1.0);
-	setAmbient(0.5, 0.5, 0.5, 1.0);
-	setDiffuse(1.0, 1.0, 1.0, 1.0);
-	setSpecular(1.0, 1.0, 1.0, 1.0);
-	setShininess(50.0);
+	setEmission(0.1f, 0.1f, 0.1f, 1.0f);
+	setAmbient(0.5f, 0.5f, 0.5f, 1.0f);
+	setDiffuse(1.0f, 1.0f, 1.0f, 1.0f);
+	setSpecular(1.0f, 1.0f, 1.0f, 1.0f);
+	setShininess(50.0f);
 }
 
 void Material::setEmission(float r, float g, float b, float a) {

@@ -2,13 +2,17 @@
 #include "Pang.h"
 #include "PangIO.h"
 #include "Ball.h"
+#include "Texture.h"
+
 #include <GL/glut.h>
+
+#include <iostream>
+using namespace std;
 
 constexpr double HarpoonINVALID = -1.0;
 
-Player::Player() : coord{ 0.0f, GameFrameDown }, harpoon(HarpoonINVALID),
+Player::Player() : coord{ 0.0f, 0.1f + GameFrameDown }, harpoon(HarpoonINVALID),
 life(LifeInit), lastCollision(-2 * CollideDelay) {
-
 }
 
 static bool harpoonvalid(double harpoon) {
@@ -22,6 +26,10 @@ void Player::setCoord(double x, double y) {
 
 void Player::setHarpoon(double _harpoon) {
 	harpoon = _harpoon;
+}
+
+void  Player::setLife(int lifeNumber) {
+	life = lifeNumber;
 }
 
 const double* Player::getCoord() const {
@@ -81,33 +89,55 @@ void Player::launch() {
 	}
 }
 
+void drawRope(double x, double y1, double y2){
+	glEnable(GL_TEXTURE_2D);
+
+	static Texture rImage("rope.png");
+	rImage.draw();
+
+	glBegin(GL_QUADS);
+
+	float xsize = 0.01;
+	glTexCoord2f(0, 0); glVertex3f(x - xsize, y1 , 0.0);
+	glTexCoord2f(0, 1); glVertex3f(x - xsize, y2, 0.0);
+	glTexCoord2f(1, 1); glVertex3f(x + xsize, y2, 0.0);
+	glTexCoord2f(1, 0); glVertex3f(x + xsize, y1, 0.0);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+}
+
+void drawHarpoonEnd(double x, double y) {
+	glEnable(GL_TEXTURE_2D);
+
+	static Texture rImage("harpoon_end.png");
+	rImage.draw();
+
+	glBegin(GL_QUADS);
+
+	float xsize = 0.01;
+	float ysize = 0.01;
+	glTexCoord2f(0, 0); glVertex3f(x - xsize, y, 0.0);
+	glTexCoord2f(0, 1); glVertex3f(x - xsize, y + 2 * ysize, 0.0);
+	glTexCoord2f(1, 1); glVertex3f(x + xsize, y + 2 * ysize, 0.0);
+	glTexCoord2f(1, 0); glVertex3f(x + xsize, y, 0.0);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+}
+
+
 void Player::draw() const {
 	glPushMatrix();
-
-	//to be implemented
-	glPointSize(5);
-
-	glBegin(GL_POINTS);
-	glColor4d(0.0f, 1.0f, 0.0f, 0.0f);
-	glVertex2d(coord[0], coord[1]);
-	glEnd();
 
 	if (harpoonvalid(harpoon)) {
 		DEBUG("drawing harpoon x %5.2f y %5.2f\n", coord[0], harpoon);
 
-		glBegin(GL_LINES);
-		glColor4d(0.0f, 1.0f, 1.0f, 0.0f);
-		glVertex2d(coord[0], coord[1]);
-		glVertex2d(coord[0], harpoon);
-		glEnd();
-
-		glBegin(GL_POINTS);
-		glColor4d(0.0f, 1.0f, 0.0f, 0.0f);
-		glVertex2d(coord[0], harpoon);
-		glEnd();
+		drawRope(coord[0], coord[1], harpoon);
+		drawHarpoonEnd(coord[0], harpoon);
 	}
 
-	glPointSize(1);
+	
 
 	glPopMatrix();
 }

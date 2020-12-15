@@ -1,11 +1,6 @@
 #include <iostream>
 
-#include <Windows.h>
-#include <mmsystem.h>
-#include <winnt.h>
-
-#pragma comment(lib, "winmm.lib")
-
+#include "Pang.h"
 #include "Texture.h"
 
 using namespace std;
@@ -16,16 +11,16 @@ static FIBITMAP* createBitMap(const char* filename) {
 	FREE_IMAGE_FORMAT format = FreeImage_GetFileType(filename, 0);
 
 	if (format == -1) {
-		cout << "Could not find image: " << filename << " - Aborting." << endl;
+		DEBUG("Could not find image: %s - Aborting.\n", filename);
 		exit(-1);
 	}
 
 	if (format == FIF_UNKNOWN) {
-		cout << "Couldn't determine file format - attempting to get from file extension..." << endl;
+		DEBUG("Couldn't determine file format - attempting to get from file extension...\n");
 		format = FreeImage_GetFIFFromFilename(filename);
 
 		if (!FreeImage_FIFSupportsReading(format)) {
-			cout << "Detected image format cannot be read!" << endl;
+			DEBUG("Detected image format cannot be read!\n");
 			exit(-1);
 		}
 	}
@@ -37,10 +32,10 @@ static FIBITMAP* createBitMap(const char* filename) {
 	int bitsPerPixel = FreeImage_GetBPP(bitmap);
 
 	if (bitsPerPixel == 32) {
-		cout << "Source image has " << bitsPerPixel << " bits per pixel. Skipping conversion." << endl;
+		DEBUG("Source image has %d bits per pixel. Skipping conversion.\n", bitsPerPixel);
 	}
 	else {
-		cout << "Source image has " << bitsPerPixel << " bits per pixel. Converting to 32-bit colour." << endl;
+		DEBUG("Source image has %d bits per pixel. Converting to 32-bit colour.\n", bitsPerPixel);
 
 		FIBITMAP* bitmapsaved = bitmap;
 		bitmap = FreeImage_ConvertTo32Bits(bitmap);
@@ -49,6 +44,8 @@ static FIBITMAP* createBitMap(const char* filename) {
 
 	return bitmap;
 }
+
+#pragma warning ( default: 26812 )
 
 Texture::Texture(const std::string& filename) {
 	image = createBitMap(filename.c_str());

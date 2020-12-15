@@ -11,7 +11,7 @@ using namespace std;
 
 constexpr double HarpoonINVALID = -1.0;
 
-Player::Player() : coord{ 0.0f, 0.1f + GameFrameDown }, harpoon(HarpoonINVALID),
+Player::Player() : coord{ Init_PlayerPosition_x, Init_PlayerPosition_y }, harpoon(HarpoonINVALID),
 life(LifeInit), lastCollision(-2 * CollideDelay) {
 }
 

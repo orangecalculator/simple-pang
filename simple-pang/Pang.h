@@ -14,8 +14,10 @@ constexpr double GameFrameRight = 0.9;
 constexpr double GameFrameUp = 0.9;
 constexpr double GameFrameDown = -0.8;
 
+constexpr double PlayerCollideBoxSize = 0.03;
+
 constexpr double Init_PlayerPosition_x = 0.0;
-constexpr double Init_PlayerPosition_y = 0.1 + GameFrameDown;
+constexpr double Init_PlayerPosition_y = GameFrameDown + PlayerCollideBoxSize;
 
 constexpr double PlayerSpeed = 0.05;
 constexpr double HarpoonSpeed = 0.02;
@@ -35,7 +37,6 @@ constexpr int LifeInit = 5;
 
 // 무적 시간을 3초로 함.
 constexpr long CollideDelay = fps * 3;
-constexpr double PlayerCollideBoxSize = 0.03;
 
 ////// HELPERS //////
 

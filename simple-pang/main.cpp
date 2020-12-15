@@ -1,4 +1,4 @@
-#define DEBUG
+
 #include "Pang.h"
 #include "PangIO.h"
 #include "Player.h"
@@ -180,25 +180,17 @@ static void Pang_Init() {
 
 		isFirst = false;
 	}
-	
-	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
-
-	
-	balls.push_back(Ball(0, 0, BallMaxSize, true));
-	balls.push_back(Ball(0, 0, BallMaxSize, false));
-	
-
 
 	// 게임 소리 나게 하는 코드. 
 	PlaySound(TEXT("bgm.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
 }
 
 void Pang_Mode_Standby();
-static void Pang_NextStage() {
-	stage += 1;
+static void Pang_InitGame() {
+	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
 
-	balls.push_back(Ball(0, 0, BallMaxSize / 2, true));
-	balls.push_back(Ball(0, 0, BallMaxSize / 2, false));
+	balls.push_back(Ball(0, 0, BallMaxSize, true));
+	balls.push_back(Ball(0, 0, BallMaxSize, false));
 
 	P.setLife(5);
 	slowItemNumber = 4;
@@ -256,13 +248,13 @@ static void Pang_IdleAction() {
 			P.checkcollision(B);
 
 		if (balls.size() == 0) {
-			Pang_NextStage();
+			stage += 1;
+			Pang_InitGame();
 		}
 
 		if (P.getLife() <= 0) {
-			glutIdleFunc(NULL);
-			glutKeyboardFunc(NULL);
-			glutSpecialFunc(NULL);
+			stage = 1;
+			Pang_InitGame();
 		}
 	}
 
@@ -426,6 +418,7 @@ static int Pang_main(int * Pargc, char* argv[]) {
 	glutCreateWindow("Simple Pang");
 
 	Pang_Init();
+	Pang_InitGame();
 
 	Pang_Mode_Standby();
 

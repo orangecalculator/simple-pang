@@ -240,8 +240,9 @@ public:
 
 	void tryupdate(double framedelta, double _ux, double _uy, double _uc,
 					double _vx, double _vy) {
-		if(framedelta < -tol)
+		if (framedelta < -tol) {
 			DEBUG("negative framedelta detected\n");
+		}
 		/*if (framedelta < -tol) // not needed
 			;
 		else*/
@@ -416,11 +417,10 @@ public:
 		const double nextX = B.getcoordX() + nextframedelta * B.getvelocityX();
 		const double nextY = B.getYatX(nextX);
 
-		if (B.collision(PX, PY))
-			;
 		if (pointlinedistsq(PX, PY, B.getcoordX(), B.getcoordY(), nextX, nextY)
-			< square(B.getradius()))
-			;
+			< square(B.getradius())) {
+
+		}
 		else
 			return;
 
@@ -485,8 +485,9 @@ void Ball::nextframe() {
 			F.considerPoint(B.getRight(), B.getUp());
 		}
 
-		if (F.getnextframedelta() < -tol)
+		if (F.getnextframedelta() < -tol) {
 			DEBUG("negative framedelta detected\n");
+		}
 
 		coord[0] += velocityX * F.getnextframedelta();
 		coord[1] = getYatX(coord[0]);

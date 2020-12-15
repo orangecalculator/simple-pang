@@ -19,7 +19,7 @@ private:
 	Material mtl;
 
 public:
-	Block(double Left, double Right, double Up, double Down);
+	Block(double Left, double Right, double Up, double Down, const Material& mtl = Emerald);
 
 	double getLeft() const;
 	double getRight() const;
@@ -36,7 +36,7 @@ public:
 
 class OuterFrameBlock : public Block {
 public:
-	OuterFrameBlock(double Left, double Right, double Up, double Down);
+	OuterFrameBlock(double Left, double Right, double Up, double Down, const Material& mtl = Copper);
 
 	virtual BOUNCEFUNCTION getBounceDown() const;
 

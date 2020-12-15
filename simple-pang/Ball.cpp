@@ -103,10 +103,11 @@ static inline double parabolaconst(double SpeedX) {
 		+ (speedY ** 2 / (2 * gravity))
 */
 
-Ball::Ball(double InitX, double InitY, double radius, bool goRight)
+Ball::Ball(double InitX, double InitY, double radius, bool goRight, const Material & mtl)
 	: coord{ InitX, InitY }, peakcoord{ InitX, InitY },
-		velocityX(goRight ? BallSpeedX : -BallSpeedX), radius(radius),
-		mtl(Copper){
+	velocityX(goRight ? BallSpeedX : -BallSpeedX), radius(radius),
+	mtl(mtl){
+
 }
 
 void Ball::setvelocity(double velX, double velY) {

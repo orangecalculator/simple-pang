@@ -2,8 +2,8 @@
 #include "Block.h"
 #include <GL/glut.h>
 
-Block::Block(double Left, double Right, double Up, double Down)
-	: Left(Left), Right(Right), Up(Up), Down(Down), mtl(Brass) {
+Block::Block(double Left, double Right, double Up, double Down, const Material& mtl)
+	: Left(Left), Right(Right), Up(Up), Down(Down), mtl(mtl) {
 
 }
 
@@ -37,8 +37,8 @@ void Block::draw() const {
 	glEnd();
 }
 
-OuterFrameBlock::OuterFrameBlock(double Left, double Right, double Up, double Down)
-	: Block(Left, Right, Up, Down) {
+OuterFrameBlock::OuterFrameBlock(double Left, double Right, double Up, double Down, const Material& mtl)
+	: Block(Left, Right, Up, Down, mtl) {
 
 }
 

@@ -16,7 +16,7 @@ private:
 	Material mtl;
 
 public:
-	Ball(double initcoordX, double initcoordY, double radius, bool goRight);
+	Ball(double initcoordX, double initcoordY, double radius, bool goRight, const Material& mtl = Ruby);
 
 	double getcoordX() const;
 	double getcoordY() const;

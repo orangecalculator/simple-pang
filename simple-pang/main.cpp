@@ -38,7 +38,7 @@ int slowItemNumber = 4;
 
 extern double framedelta;
 
-Light light(1, 1, 1 / 2, GL_LIGHT0);
+Light light(0.5, 0.5, -2.0, GL_LIGHT0);
 
 void drawSquareWithTexture() {
 	glEnable(GL_TEXTURE_2D);

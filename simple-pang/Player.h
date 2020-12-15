@@ -2,6 +2,7 @@
 #define _PLAYER_H_
 
 #include "Ball.h"
+#include "Block.h"
 
 class Player {
 private:
@@ -25,10 +26,11 @@ public:
 
 	void useHarpoon();
 	void move(double dx, double dy);
-	void nextframe();
+	void nextframe(double framedelta);
 
 	void checkcollision(const Ball&);
 	bool checkHarpooncollision(const Ball&);
+	bool checkHarpooncollision(const Block&);
 	void launch();
 	void draw() const;
 };

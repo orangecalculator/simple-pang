@@ -1,7 +1,6 @@
 #include "Player.h"
 #include "Pang.h"
 #include "PangIO.h"
-#include "Ball.h"
 #include "Texture.h"
 
 #include <GL/glut.h>
@@ -55,13 +54,11 @@ void Player::move(double dx, double dy) {
 	}
 }
 
-void Player::nextframe() {
+void Player::nextframe(double framedelta) {
 	if (harpoonvalid(harpoon)) {
 		DEBUG("harpoon proceed at %5.2f\n", harpoon);
 
-		harpoon += HarpoonSpeed;
-		if (harpoon > GameFrameUp)
-			harpoon = HarpoonINVALID;
+		harpoon += HarpoonSpeed * framedelta;
 	}
 }
 
@@ -81,6 +78,23 @@ void Player::checkcollision(const Ball & B) {
 		life--;
 		lastCollision = getFrameCount();
 	}
+}
+
+bool Player::checkHarpooncollision(const Block & B) {
+	if (!harpoonvalid(getHarpoon()))
+		return false;
+
+	if (getCoord()[0] < B.getLeft())
+		return false;
+	if (B.getRight() < getCoord()[0])
+		return false;
+	
+	if (getCoord()[1] < B.getDown() && B.getDown() < getHarpoon())
+		return true;
+	if (getCoord()[1] < B.getUp() && B.getUp() < getHarpoon())
+		return true;
+	
+	return false;
 }
 
 bool Player::checkHarpooncollision(const Ball& B) {

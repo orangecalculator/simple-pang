@@ -510,10 +510,6 @@ void Ball::nextframe(double framedelta) {
 	//DEBUG("Ball Trajectory %11.4g %11.4g from peak %11.4g %11.4g\n", coord[0], coord[1], peakcoord[0], peakcoord[1]);
 }
 
-void Ball::futurenextframe() {
-
-}
-
 void Ball::setMTL(const Material& m) {
 	mtl.setEmission(m.getEmission()[0], m.getEmission()[1], m.getEmission()[2], m.getEmission()[3]);
 	mtl.setAmbient(m.getAmbient()[0], m.getAmbient()[1], m.getAmbient()[2], m.getAmbient()[3]);

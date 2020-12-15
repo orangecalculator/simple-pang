@@ -225,7 +225,7 @@ static void Pang_IdleAction() {
 		ProceedFrame();
 
 		PIO.submit();
-		P.nextframe();
+		P.nextframe(framedelta_stage(stage));
 
 		for (Ball& B : balls) {
 			B.nextframe(framedelta_stage(stage, isSlow));
@@ -257,6 +257,12 @@ static void Pang_IdleAction() {
 
 		for (const Ball& B : balls)
 			P.checkcollision(B);
+
+		for (const Block* B : blocks) {
+			if (P.checkHarpooncollision(*B)) {
+				P.useHarpoon();
+			}
+		}
 
 		if (balls.size() == 0) {
 			stage += 1;

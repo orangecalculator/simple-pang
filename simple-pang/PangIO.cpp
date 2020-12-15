@@ -4,6 +4,10 @@
 #include "PangIO.h"
 #include "Player.h"
 
+PangIO::PangIO(Player& player) : player(player) {
+	clear();
+}
+
 void PangIO::setkeySPACE() {
 	keySPACE = true;
 }
@@ -54,6 +58,13 @@ void PangIO::submit() {
 
 		player.launch();
 	}
+}
+
+void PangIO::clear() {
+	keySPACE = false;
+	keyLEFT = false;
+	keyUP = false;
+	keyDOWN = false;
 }
 
 static clock_t framecount = 0;

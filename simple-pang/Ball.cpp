@@ -464,9 +464,7 @@ public:
 	double getvy() const { return vy; }
 };
 
-double framedelta = 1.0;
-
-void Ball::nextframe() {
+void Ball::nextframe(double framedelta) {
 	FrameCalculator F(*this, framedelta);
 
 	while (F.frameleft()) {

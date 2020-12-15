@@ -14,7 +14,7 @@ private:
 	bool keyDOWN;
 
 public:
-	PangIO(Player& player) : player(player), keySPACE(false), keyLEFT(false), keyUP(false), keyRIGHT(false), keyDOWN(false) { }
+	PangIO(Player& player);
 
 	void setkeySPACE();
 	void setkeyLEFT();
@@ -23,6 +23,7 @@ public:
 	void setkeyDOWN();
 
 	void submit();
+	void clear();
 };
 
 bool IsLastFrame();

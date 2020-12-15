@@ -1,4 +1,4 @@
-
+#define DEBUG
 #include "Pang.h"
 #include "PangIO.h"
 #include "Player.h"
@@ -31,12 +31,11 @@ using namespace std;
 
 static Player P;
 static PangIO PIO(P);
+static OuterFrameBlock* OuterFrame;
 
 int stage = 1;
 
 int slowItemNumber = 4;
-
-extern double framedelta;
 
 Light light(0.5, 0.5, -2.0, GL_LIGHT0);
 
@@ -48,10 +47,10 @@ void drawSquareWithTexture() {
 
 	glBegin(GL_QUADS);
 
-	glTexCoord2f(0, 0); glVertex3f(-0.9, -0.8, 0.0);
-	glTexCoord2f(0, 1); glVertex3f(-0.9, 0.9, 0.0);
-	glTexCoord2f(1, 1); glVertex3f(0.9, 0.9, 0.0);
-	glTexCoord2f(1, 0); glVertex3f(0.9, -0.8, 0.0);
+	glTexCoord2f(0, 0); glVertex3f(-0.9, -0.8, 1.0);
+	glTexCoord2f(0, 1); glVertex3f(-0.9, 0.9, 1.0);
+	glTexCoord2f(1, 1); glVertex3f(0.9, 0.9, 1.0);
+	glTexCoord2f(1, 0); glVertex3f(0.9, -0.8, 1.0);
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
@@ -149,11 +148,17 @@ void displayGameInfo3() {
 
 int frameCounter;
 bool isSlow = false;
+static double framedelta_stage(int stageno, bool isSlow = false) {
+	const double framedelta = 1.0 + 0.5 * (double)(stageno - 1);
+	if (isSlow)
+		return framedelta / 2.0;
+	else
+		return framedelta;
+}
 
 void makeBallSlow() {
 	if (isSlow == false) {
 		frameCounter = getFrameCount();
-		framedelta /= 2;
 		isSlow = true;
 		slowItemNumber -= 1;
 	}
@@ -169,7 +174,8 @@ static void Pang_Init() {
 		light.setDiffuse(0.7, 0.7, 0.7, 1.0);
 		light.setSpecular(1.0, 1.0, 1.0, 1.0);
 
-		blocks.push_back(new OuterFrameBlock(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown));
+		OuterFrame = new OuterFrameBlock(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown);
+		blocks.push_back(OuterFrame);
 		blocks.push_back(new Block(0.4, 0.5, 0.1, -0.1));
 
 		isFirst = false;
@@ -187,6 +193,19 @@ static void Pang_Init() {
 	PlaySound(TEXT("bgm.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
 }
 
+void Pang_Mode_Standby();
+static void Pang_NextStage() {
+	stage += 1;
+
+	balls.push_back(Ball(0, 0, BallMaxSize / 2, true));
+	balls.push_back(Ball(0, 0, BallMaxSize / 2, false));
+
+	P.setLife(5);
+	slowItemNumber = 4;
+
+	Pang_Mode_Standby();
+}
+
 static void Pang_Exit() {
 	for (Block* PB : blocks)
 		delete PB;
@@ -198,7 +217,6 @@ static void Pang_IdleAction() {
 	// ¼Óµµ¸¦ ¿ø»óº¹±Í½ÃÅ´.
 	if (isSlow) {
 		if (frameCounter + 180 < getFrameCount()) {
-			framedelta *= 2;
 			isSlow = false;
 		}
 	}
@@ -210,7 +228,7 @@ static void Pang_IdleAction() {
 		P.nextframe();
 
 		for (Ball& B : balls) {
-			B.nextframe();
+			B.nextframe(framedelta_stage(stage, isSlow));
 		}
 
 		////harpoon collision
@@ -238,15 +256,7 @@ static void Pang_IdleAction() {
 			P.checkcollision(B);
 
 		if (balls.size() == 0) {
-			stage += 1;
-			// stage°¡ ÁøÇàµÉ¼ö·Ï °øÀÌ »¡¶óÁü.
-			framedelta += 0.5f;
-
-			balls.push_back(Ball(0, 0, BallMaxSize / 2, true));
-			balls.push_back(Ball(0, 0, BallMaxSize / 2, false));
-
-			P.setLife(5);
-			slowItemNumber = 4;
+			Pang_NextStage();
 		}
 
 		if (P.getLife() <= 0) {
@@ -307,8 +317,6 @@ static void Pang_renderScene() {
 	displayGameInfo2();
 	displayGameInfo3();
 
-
-
 	glutSwapBuffers();
 
 }
@@ -344,6 +352,73 @@ static void Pang_SpecialKeyboardAction(int key, int x, int y) {
 	glutPostRedisplay();
 }
 
+static void Pang_Mode_Game() {
+	glutDisplayFunc(Pang_renderScene);
+	glutIdleFunc(Pang_IdleAction);
+	glutKeyboardFunc(Pang_KeyboardAction);
+	glutSpecialFunc(Pang_SpecialKeyboardAction);
+}
+
+static void PangStandby_renderScene() {
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	drawSquareWithTexture();
+
+	OuterFrame->draw();
+	drawSquareWithTexture();
+	drawPlayerTexture();
+
+	displayFrameCount();
+	displayLife();
+	displaySlowItem();
+	displayStageNumber();
+	displayGameInfo1();
+	displayGameInfo2();
+	displayGameInfo3();
+
+	static Text StandbyMessage({ -0.8, 0.0 });
+	StandbyMessage.draw("Press 'P' to Continue");
+
+	glutSwapBuffers();
+}
+
+static void PangStandby_IdleAction() {
+	while (!IsLastFrame()) {
+		ProceedFrame();
+	}
+
+	glutPostRedisplay();
+}
+
+static void PangStandby_KeyboardInput(unsigned char key, int x, int y) {
+	DEBUG("key %c at (%d, %d)\n", key, x, y);
+	switch (key) {
+	case 'P':
+	case 'p':
+		Pang_Mode_Game();
+		break;
+	default:
+		return;
+	}
+
+	glutPostRedisplay();
+}
+
+static void Pang_Mode_Standby() {
+	glutDisplayFunc(PangStandby_renderScene);
+	glutIdleFunc(PangStandby_IdleAction);
+	glutKeyboardFunc(PangStandby_KeyboardInput);
+	glutSpecialFunc(nullptr);
+}
+
 static int Pang_main(int * Pargc, char* argv[]) {
 	glutInit(Pargc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
@@ -352,10 +427,7 @@ static int Pang_main(int * Pargc, char* argv[]) {
 
 	Pang_Init();
 
-	glutDisplayFunc(Pang_renderScene);
-	glutIdleFunc(Pang_IdleAction);
-	glutKeyboardFunc(Pang_KeyboardAction);
-	glutSpecialFunc(Pang_SpecialKeyboardAction);
+	Pang_Mode_Standby();
 
 	glutMainLoop();
 

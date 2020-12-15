@@ -37,7 +37,7 @@ public:
 	bool collision(double posX, double posY) const;
 	bool collision(double LX, double LY, double RX, double RY) const;
 
-	void nextframe();
+	void nextframe(double framedelta = 1.0);
 	void futurenextframe();
 
 	void setMTL(const Material& m);

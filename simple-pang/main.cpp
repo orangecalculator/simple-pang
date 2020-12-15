@@ -216,7 +216,7 @@ static void Pang_IdleAction() {
 
 		////harpoon collision
 		for (auto it = balls.begin(); it != balls.end(); ++it) {
-			if (it->collision(P.getCoord()[0], P.getCoord()[1], P.getCoord()[0], P.getHarpoon())) {
+			if (P.checkHarpooncollision(*it)) {
 				const double BcoordX = it->getcoordX();
 				const double BcoordY = it->getcoordY();
 				const double newradius = it->getradius() / 2;

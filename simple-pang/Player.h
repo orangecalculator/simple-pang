@@ -28,6 +28,7 @@ public:
 	void nextframe();
 
 	void checkcollision(const Ball&);
+	bool checkHarpooncollision(const Ball&);
 	void launch();
 	void draw() const;
 };

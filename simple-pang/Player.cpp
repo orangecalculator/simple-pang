@@ -83,6 +83,13 @@ void Player::checkcollision(const Ball & B) {
 	}
 }
 
+bool Player::checkHarpooncollision(const Ball& B) {
+	if (!harpoonvalid(getHarpoon()))
+		return false;
+
+	return B.collision(getCoord()[0], getCoord()[1], getCoord()[0], getHarpoon());
+}
+
 void Player::launch() {
 	if (!harpoonvalid(harpoon)) {
 		harpoon = GameFrameDown;

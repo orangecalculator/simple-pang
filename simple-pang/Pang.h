@@ -26,7 +26,8 @@ constexpr int BallSlice = 50;
 constexpr int BallStack = 50;
 
 constexpr double BallMaxSpeedY = 0.03;
-constexpr double BallMaxSize = 0.2;
+constexpr double BallMaxSize = 0.1;
+constexpr double BallMinSize = 0.02;
 
 constexpr int fps = 60;
 
@@ -34,7 +35,7 @@ constexpr int LifeInit = 5;
 
 // 무적 시간을 3초로 함.
 constexpr long CollideDelay = fps * 3;
-constexpr double PlayerCollideBoxSize = 0.1;
+constexpr double PlayerCollideBoxSize = 0.03;
 
 ////// HELPERS //////
 

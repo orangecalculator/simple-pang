@@ -171,7 +171,6 @@ static void Pang_Init() {
 
 		blocks.push_back(new OuterFrameBlock(GameFrameLeft, GameFrameRight, GameFrameUp, GameFrameDown));
 		blocks.push_back(new Block(0.4, 0.5, 0.1, -0.1));
-		//blocks.push_back(new Block(0.11, 0.3, 0.2, -0.2));
 
 		isFirst = false;
 	}
@@ -179,8 +178,8 @@ static void Pang_Init() {
 	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
 
 	
-	balls.push_back(Ball(0, 0, BallMaxSize / 2, true));
-	balls.push_back(Ball(0, 0, BallMaxSize / 2, false));
+	balls.push_back(Ball(0, 0, BallMaxSize, true));
+	balls.push_back(Ball(0, 0, BallMaxSize, false));
 	
 
 
@@ -224,12 +223,10 @@ static void Pang_IdleAction() {
 				balls.erase(it);
 
 				// 작살을 3번 맞으면 공이 사라짐. 2 ** 3 = 8
-				if (newradius > 0.1 / 8) {
+				if (newradius >= BallMinSize) {
 					balls.push_back(Ball(BcoordX - newradius, BcoordY, newradius, false));
 					balls.push_back(Ball(BcoordX + newradius, BcoordY, newradius, true));
 				}
-
-				
 
 				P.useHarpoon();
 

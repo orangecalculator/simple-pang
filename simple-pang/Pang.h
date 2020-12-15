@@ -14,10 +14,14 @@ constexpr double GameFrameRight = 0.9;
 constexpr double GameFrameUp = 0.9;
 constexpr double GameFrameDown = -0.8;
 
+constexpr double DisplayInterval = 0.05;
+
 constexpr double PlayerCollideBoxSize = 0.03;
 
 constexpr double Init_PlayerPosition_x = 0.0;
 constexpr double Init_PlayerPosition_y = GameFrameDown + PlayerCollideBoxSize;
+
+constexpr double Init_BallPosition_Noise = 0.1;
 
 constexpr double PlayerSpeed = 0.05;
 constexpr double HarpoonSpeed = 0.02;

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <random>
 #include <sstream>
 
 #include <Windows.h>
@@ -32,8 +33,10 @@ using namespace std;
 static Player P;
 static PangIO PIO(P);
 static OuterFrameBlock* OuterFrame;
+static vector<int> ScoreBoard;
 
 int stage = 1;
+int score;
 
 int slowItemNumber = 4;
 
@@ -74,6 +77,29 @@ void displayLife() {
 		LifeDisplay.draw(std::string(P.getLife(), 'L'));
 }
 
+void displayScore() {
+	static Text ScoreDisplay({ GameFrameRight / 2.0, GameFrameUp });
+
+	std::stringstream scoretext;
+
+	scoretext << "Score: ";
+	scoretext << score;
+	ScoreDisplay.draw(scoretext.str());
+}
+
+void displayScoreBoard() {
+	Text ScoreBoardDisplay({ GameFrameRight / 2.0, GameFrameUp / 2.0 });
+
+	ScoreBoardDisplay.draw("Scores");
+
+	std::stringstream scoretext;
+	for (int score : ScoreBoard) {
+		ScoreBoardDisplay.setPosition(ScoreBoardDisplay.getPosition()[0], ScoreBoardDisplay.getPosition()[0] - DisplayInterval);
+		scoretext.clear();
+		scoretext << score;
+		ScoreBoardDisplay.draw(scoretext.str());
+	}
+}
 
 void displaySlowItem() {
 
@@ -120,7 +146,6 @@ void displayGameInfo3() {
 	std::stringstream gameinfotext;
 	gameinfotext << "Get rid of all the balloons and go to the next stage. The balloons will be much faster.";
 
-
 	GameInfoDisplay.draw(gameinfotext.str());
 }
 
@@ -157,16 +182,28 @@ static void Pang_Init() {
 }
 
 void Pang_Mode_Standby();
-static void Pang_InitGame() {
+
+static void Pang_InitStage() {
 	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
 
-	balls.push_back(Ball(0, 0, BallMaxSize, true));
-	balls.push_back(Ball(0, 0, BallMaxSize, false));
+	static std::random_device fd;
+	static std::mt19937 randgenerator(fd());
+	static std::uniform_real_distribution<double> ballposnoise(-Init_BallPosition_Noise, Init_BallPosition_Noise);
+
+	balls.clear();
+	for(int k=0;k<stage+1;++k)
+		balls.push_back(Ball(ballposnoise(randgenerator), ballposnoise(randgenerator), BallMaxSize, (bool)(k % 2)));
 
 	P.setLife(5);
 	slowItemNumber = 4;
 
 	Pang_Mode_Standby();
+}
+
+static void Pang_InitGame() {
+	stage = 1;
+	score = 0;
+	Pang_InitStage();
 }
 
 static void Pang_Exit() {
@@ -197,6 +234,8 @@ static void Pang_IdleAction() {
 		//harpoon collision
 		for (auto it = balls.begin(); it != balls.end(); ++it) {
 			if (P.checkHarpooncollision(*it)) {
+				score += (int)(1.0 / it->getradius());
+
 				const double BcoordX = it->getcoordX();
 				const double BcoordY = it->getcoordY();
 				const double newradius = it->getradius() / 2;
@@ -211,6 +250,7 @@ static void Pang_IdleAction() {
 
 				P.useHarpoon();
 
+
 				break;
 			}
 		}
@@ -220,12 +260,14 @@ static void Pang_IdleAction() {
 
 		if (balls.size() == 0) {
 			stage += 1;
-			Pang_InitGame();
+			Pang_InitStage();
+			break;
 		}
 
 		if (P.getLife() <= 0) {
-			stage = 1;
+			ScoreBoard.push_back(score);
 			Pang_InitGame();
+			break;
 		}
 	}
 
@@ -274,6 +316,7 @@ static void Pang_renderScene() {
 	displayGameInfo1();
 	displayGameInfo2();
 	displayGameInfo3();
+	displayScore();
 
 	glutSwapBuffers();
 
@@ -349,6 +392,8 @@ static void PangStandby_renderScene() {
 	displayGameInfo1();
 	displayGameInfo2();
 	displayGameInfo3();
+	displayScore();
+	displayScoreBoard();
 
 	static Text StandbyMessage({ -0.8, 0.0 });
 	StandbyMessage.draw("Press 'P' to Continue");

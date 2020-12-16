@@ -298,12 +298,8 @@ static void Pang_renderScene() {
 	glEnable(light.getID());
 	light.draw();
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
 	for (const Block* PB : blocks)
 		PB->draw();
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	P.draw();
 

@@ -40,7 +40,7 @@ int score;
 
 int slowItemNumber = 4;
 
-Light light(0.5, 0.5, -2.0, GL_LIGHT0);
+Light light(0.5, 0.5, 2.0, GL_LIGHT0);
 
 void drawSquareWithTexture() {
 	glEnable(GL_TEXTURE_2D);
@@ -49,7 +49,6 @@ void drawSquareWithTexture() {
 	bgImage.draw();
 
 	glBegin(GL_QUADS);
-
 	glTexCoord2f(0, 0); glVertex3f(-0.9, -0.8, 1.0);
 	glTexCoord2f(0, 1); glVertex3f(-0.9, 0.9, 1.0);
 	glTexCoord2f(1, 1); glVertex3f(0.9, 0.9, 1.0);
@@ -288,6 +287,8 @@ static void Pang_renderScene() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
+	glOrtho(-1.0, 1.0, -1.0, 1.0, -3.0, 3.0);
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -305,7 +306,6 @@ static void Pang_renderScene() {
 
 	for (const Ball& B : balls)
 		B.draw();
-	
 
 	glDisable(light.getID());
 	glDisable(GL_LIGHTING);
@@ -336,6 +336,7 @@ static void Pang_KeyboardAction(unsigned char key, int x, int y) {
 
 	glutPostRedisplay();
 }
+
 static void Pang_SpecialKeyboardAction(int key, int x, int y) {
 	switch (key) {
 	case GLUT_KEY_LEFT:
@@ -369,6 +370,8 @@ static void PangStandby_renderScene() {
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+
+	glOrtho(-1.0, 1.0, -1.0, 1.0, -3.0, 3.0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

@@ -187,8 +187,6 @@ static void Pang_Init() {
 void Pang_Mode_Standby();
 
 static void Pang_InitStage() {
-	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
-
 	static std::random_device fd;
 	static std::mt19937 randgenerator(fd());
 	static std::uniform_real_distribution<double> ballposnoise(-Init_BallPosition_Noise, Init_BallPosition_Noise);
@@ -197,6 +195,8 @@ static void Pang_InitStage() {
 	for(int k=0;k<stage+1;++k)
 		balls.push_back(Ball(ballposnoise(randgenerator), ballposnoise(randgenerator), BallMaxSize, (bool)(k % 2)));
 
+	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
+	P.setHarpoon(-1.0);
 	P.setLife(5);
 	slowItemNumber = 4;
 

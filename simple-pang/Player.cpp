@@ -24,7 +24,10 @@ void Player::setCoord(double x, double y) {
 }
 
 void Player::setHarpoon(double _harpoon) {
-	harpoon = _harpoon;
+	if (harpoonvalid(_harpoon))
+		harpoon = _harpoon;
+	else
+		harpoon = HarpoonINVALID;
 }
 
 void  Player::setLife(int lifeNumber) {

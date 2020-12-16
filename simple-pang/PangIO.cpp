@@ -36,7 +36,7 @@ void PangIO::submit() {
 	}
 	if (keyLEFT) {
 		keyLEFT = false;
-		if (player.getCoord()[0] > -0.8) {
+		if (player.getCoord()[0] > GameFrameLeft + PlayerCollideBoxSize + PlayerSpeed) {
 			player.move(-PlayerSpeed, 0);
 		}
 		
@@ -48,7 +48,7 @@ void PangIO::submit() {
 	}
 	if (keyRIGHT) {
 		keyRIGHT = false;
-		if (player.getCoord()[0] < 0.8) {
+		if (player.getCoord()[0] < GameFrameRight - PlayerCollideBoxSize - PlayerSpeed) {
 			player.move(PlayerSpeed, 0);
 		}
 		

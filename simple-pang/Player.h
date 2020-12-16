@@ -15,6 +15,8 @@ private:
 public:
 	Player();
 
+	void init();
+
 	void setCoord(double x, double y);
 	void setHarpoon(double harpoon);
 	void setLife(int lifeNumber);

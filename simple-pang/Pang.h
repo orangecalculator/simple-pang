@@ -14,7 +14,7 @@ constexpr double GameFrameRight = 0.9;
 constexpr double GameFrameUp = 0.9;
 constexpr double GameFrameDown = -0.8;
 
-constexpr double DisplayInterval = 0.05;
+constexpr double DisplayInterval = 0.03;
 
 constexpr double PlayerCollideBoxSize = 0.03;
 

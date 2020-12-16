@@ -152,10 +152,10 @@ void displayGameInfo3() {
 	GameInfoDisplay.draw(gameinfotext.str());
 }
 
-int frameCounter;
+long frameCounter;
 bool isSlow = false;
 static double framedelta_stage(int stageno, bool isSlow = false) {
-	const double framedelta = 1.0 + 0.5 * (double)(stageno - 1);
+	const double framedelta = 1.0 + 0.5 * (double)((double)stageno - 1.0);
 	if (isSlow)
 		return framedelta / 2.0;
 	else
@@ -195,9 +195,7 @@ static void Pang_InitStage() {
 	for(int k=0;k<stage+1;++k)
 		balls.push_back(Ball(ballposnoise(randgenerator), ballposnoise(randgenerator), BallMaxSize, (bool)(k % 2)));
 
-	P.setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
-	P.setHarpoon(-1.0);
-	P.setLife(5);
+	P.init();
 	slowItemNumber = 4;
 
 	Pang_Mode_Standby();
@@ -253,7 +251,6 @@ static void Pang_IdleAction() {
 
 				P.useHarpoon();
 
-
 				break;
 			}
 		}
@@ -301,6 +298,7 @@ static void Pang_renderScene() {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
 	glEnable(light.getID());
+
 	light.draw();
 
 	for (const Block* PB : blocks)
@@ -333,6 +331,7 @@ static void Pang_KeyboardAction(unsigned char key, int x, int y) {
 	case ' ':
 		PIO.setkeySPACE();
 		break;
+	case 'S':
 	case 's':
 		PIO.setkeyS();
 		break;
@@ -385,9 +384,11 @@ static void PangStandby_renderScene() {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
 	glEnable(light.getID());
+
 	light.draw();
 
 	OuterFrame->draw();
+
 	P.draw();
 
 	glDisable(light.getID());

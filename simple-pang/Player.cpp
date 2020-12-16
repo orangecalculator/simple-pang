@@ -18,6 +18,13 @@ static bool harpoonvalid(double harpoon) {
 	return (harpoon >= GameFrameDown - tol);
 }
 
+void Player::init() {
+	setCoord(Init_PlayerPosition_x, Init_PlayerPosition_y);
+	harpoon = HarpoonINVALID;
+	life = LifeInit;
+	lastCollision = -2 * CollideDelay;
+}
+
 void Player::setCoord(double x, double y) {
 	coord[0] = x;
 	coord[1] = y;

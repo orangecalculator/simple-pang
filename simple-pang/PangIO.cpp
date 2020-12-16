@@ -75,6 +75,7 @@ void PangIO::clear() {
 	keySPACE = false;
 	keyLEFT = false;
 	keyUP = false;
+	keyRIGHT = false;
 	keyDOWN = false;
 	keyS = false;
 }

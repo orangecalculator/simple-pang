@@ -196,6 +196,9 @@ static void Pang_InitStage() {
 		balls.push_back(Ball(ballposnoise(randgenerator), ballposnoise(randgenerator), BallMaxSize, (bool)(k % 2)));
 
 	P.init();
+	PIO.clear();
+
+	isSlow = false;
 	slowItemNumber = 4;
 
 	Pang_Mode_Standby();

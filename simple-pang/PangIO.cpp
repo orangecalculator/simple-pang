@@ -4,6 +4,8 @@
 #include "PangIO.h"
 #include "Player.h"
 
+extern void makeBallSlow();
+
 PangIO::PangIO(Player& player) : player(player) {
 	clear();
 }
@@ -26,6 +28,10 @@ void PangIO::setkeyRIGHT() {
 
 void PangIO::setkeyDOWN() {
 	keyDOWN = true;
+}
+
+void PangIO::setkeyS() {
+	keyS = true;
 }
 
 void PangIO::submit() {
@@ -58,6 +64,11 @@ void PangIO::submit() {
 
 		player.launch();
 	}
+	if (keyS) {
+		keyS = false;
+
+		makeBallSlow();
+	}
 }
 
 void PangIO::clear() {
@@ -65,6 +76,7 @@ void PangIO::clear() {
 	keyLEFT = false;
 	keyUP = false;
 	keyDOWN = false;
+	keyS = false;
 }
 
 static clock_t framecount = 0;

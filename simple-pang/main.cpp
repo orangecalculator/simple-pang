@@ -163,7 +163,7 @@ static double framedelta_stage(int stageno, bool isSlow = false) {
 }
 
 void makeBallSlow() {
-	if (isSlow == false) {
+	if (isSlow == false && slowItemNumber > 0) {
 		frameCounter = getFrameCount();
 		isSlow = true;
 		slowItemNumber -= 1;
@@ -334,7 +334,7 @@ static void Pang_KeyboardAction(unsigned char key, int x, int y) {
 		PIO.setkeySPACE();
 		break;
 	case 's':
-		makeBallSlow();
+		PIO.setkeyS();
 		break;
 	}
 

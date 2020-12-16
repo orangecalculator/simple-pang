@@ -12,6 +12,7 @@ private:
 	bool keyUP;
 	bool keyRIGHT;
 	bool keyDOWN;
+	bool keyS;
 
 public:
 	PangIO(Player& player);
@@ -21,6 +22,7 @@ public:
 	void setkeyUP();
 	void setkeyRIGHT();
 	void setkeyDOWN();
+	void setkeyS();
 
 	void submit();
 	void clear();

@@ -7,7 +7,8 @@
 #include <GL/glut.h>
 #include <iostream>
 
-#include <vector>
+#include <set>
+#include <functional>
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,7 +34,7 @@ using namespace std;
 static Player P;
 static PangIO PIO(P);
 static OuterFrameBlock* OuterFrame;
-static vector<int> ScoreBoard;
+static multiset<int, std::greater<int>> ScoreBoard;
 
 int stage = 1;
 int score;
@@ -91,10 +92,13 @@ void displayScoreBoard() {
 
 	ScoreBoardDisplay.draw("Scores");
 
+	double displayY = ScoreBoardDisplay.getPosition()[1];
 	std::stringstream scoretext;
 	for (int score : ScoreBoard) {
-		ScoreBoardDisplay.setPosition(ScoreBoardDisplay.getPosition()[0], ScoreBoardDisplay.getPosition()[0] - DisplayInterval);
+		displayY -= DisplayInterval;
+		ScoreBoardDisplay.setPosition(ScoreBoardDisplay.getPosition()[0], displayY);
 		scoretext.clear();
+		scoretext.str("");
 		scoretext << score;
 		ScoreBoardDisplay.draw(scoretext.str());
 	}
@@ -270,7 +274,7 @@ static void Pang_IdleAction() {
 		}
 
 		if (P.getLife() <= 0) {
-			ScoreBoard.push_back(score);
+			ScoreBoard.insert(score);
 			Pang_InitGame();
 			break;
 		}
